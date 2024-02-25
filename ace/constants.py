@@ -132,8 +132,8 @@ class ClusterCommands:
     DEPLOY: str = "kubectl apply -f setup/deployment.yaml"
 
 class VolumePaths:
-    HOST_CONTROLLER: str = "storage/controller"
-    HOST_OUTPUT: str = "storage/output"
+    HOST_CONTROLLER: str = "./storage/controller"
+    HOST_OUTPUT: str = "./storage/output"
     CONTROLLER: str = "/home/ace/controller"
     OUTPUT: str = "/home/ace/output"
 

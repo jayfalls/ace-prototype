@@ -79,7 +79,7 @@ class ACEArguments:
 
 # SETUP
 def setup() -> None:
-    required_paths: tuple[str, ...] = ("./storage/output", "./storage/controller")
+    required_paths: tuple[str, ...] = (VolumePaths.HOST_CONTROLLER, VolumePaths.HOST_OUTPUT)
     _ = [os.makedirs(dir_path, exist_ok=True) for dir_path in required_paths]
 
 
