@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: llm
+spec:
+  containers:
+    - name: model-provider
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "model_provider"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm
+spec:
+  selector:
+    app: model-provider
+  ports:
+    - port: 3465
+  clusterIP: None   # Headless Service
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: queue
+spec:
+  containers:
+    - name: queue
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "queue"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+spec:
+  selector:
+    app: queue
+  ports:
+    - port: 8349
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: interface
+spec:
+  volumes:
+    - name: controller-storage
+      persistentVolumeClaim:
+        claimName: controller-pv-claim
+  containers:
+    - name: controller
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "controller"]
+      volumeMounts:
+        - mountPath: "/home/ace/controller"
+          name: controller-storage
+    - name: ui
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "ui"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: controller
+spec:
+  selector:
+    app: interface
+  ports:
+    - protocol: TCP
+      port: 2349
+      targetPort: 2349
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui
+spec:
+  selector:
+    app: interface
+  ports:
+    - protocol: TCP
+      port: 9284
+      targetPort: 9284 # Replace with the desired target port for the 'ui' container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: layers
+spec:
+  volumes:
+    - name: output-storage
+      persistentVolumeClaim:
+        claimName: output-pv-claim
+  containers:
+    - name: aspirational
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "aspirational"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<queue>,<controller>"
+    - name: global-strategy
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "global_strategy"]
+      env:      
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<queue>,<controller>"
+    - name: agent-model
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "agent_model"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<queue>,<controller>"
+    - name: executive-function
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "executive_function"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<queue>,<controller>"
+    - name: cognitive-control
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "cognitive_control"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<queue>,<controller>"
+    - name: task-prosecution
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "task_prosecution"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<queue>,<controller>"
+      volumeMounts:
+        - mountPath: "/home/ace/output"
+          name: output-storage
+    - name: memory
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "memory"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<model-provider>,<agent_model>"
+    - name: senses
+      image: ace_prototype:latest
+      imagePullPolicy: Never
+      args: ["-nb", "-ct", "senses"]
+      env:
+        - name: ALLOWED_NETWORKS
+          value: "<aspirational>,<global-strategy>,<agent_model>,<executive-function>,<cognitive-control>,<task-prosecution>"
+        - name: INTERNET_ACCESS
+          value: "true"
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
