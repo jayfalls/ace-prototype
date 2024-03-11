@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: ace
+  name: ace
+spec:
+  containers:
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - controller
+    image: localhost/ace_prototype:latest
+    name: controller
+    ports:
+    - containerPort: 2349
+      hostPort: 2349
+    volumeMounts:
+    - mountPath: /home/ace/storage/controller
+      name: ace-controller-volume
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - queue
+    image: localhost/ace_prototype:latest
+    name: queue
+    ports:
+    - containerPort: 4222
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - senses
+    image: localhost/ace_prototype:latest
+    name: senses
+    ports:
+    - containerPort: 4932
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - memory
+    image: localhost/ace_prototype:latest
+    name: memory
+    ports:
+    - containerPort: 4934
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - aspirational
+    image: localhost/ace_prototype:latest
+    name: aspirational
+    ports:
+    - containerPort: 4581
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - global-strategy
+    image: localhost/ace_prototype:latest
+    name: global-strategy
+    ports:
+    - containerPort: 4582
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - agent-model
+    image: localhost/ace_prototype:latest
+    name: agent-model
+    ports:
+    - containerPort: 4583
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - executive-function
+    image: localhost/ace_prototype:latest
+    name: executive-function
+    ports:
+    - containerPort: 4584
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - cognitive-control
+    image: localhost/ace_prototype:latest
+    name: cognitive-control
+    ports:
+    - containerPort: 4585
+  - command:
+    - python3
+    - main.py
+    - -nb
+    - -ct
+    - task-prosecution
+    image: localhost/ace_prototype:latest
+    name: task-prosecution
+    ports:
+    - containerPort: 4586
+    volumeMounts:
+    - mountPath: /home/ace/storage/output
+      name: ace-output-volume
+  volumes:
+  - hostPath:
+      path: /Users/jason/programming/personal_projects/ace_prototype/app/storage/controller
+      type: Directory
+    name: ace-controller-volume
+  - hostPath:
+      path: /Users/jason/programming/personal_projects/ace_prototype/app/storage/output
+      type: Directory
+    name: ace-output-volume
+    

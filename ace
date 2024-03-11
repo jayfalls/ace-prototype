@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# MAIN
 
+# MAIN
 main() {
     python3 -m venv .venv
     source .venv/bin/activate
-    cd ace
-    pip3 install -r requirements --force-reinstall
+    cd app || exit
+    pip3 install -r requirements #--force-reinstall
     ./main.py "$@" 
     deactivate
 }

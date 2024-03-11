@@ -8,15 +8,19 @@
 # Dependencies
 
 - Before running start.py!
-    - Install [Kubernetes](https://kubernetes.io/releases/download/)
-    - Install [Docker](https://docs.docker.com/get-docker/)
-    - Install [k3d](3d.io/)
+    - Install [Podman](https://podman.io/docs/installation)
 
 # Usage
 
 ```shell
-./start
+./run
 ```
+
+## Arguments
+
+- `-s` Stop the ACE
+- `-r` Restart the ACE
+- `-u` Update the ACE
 
 # Documentation
 
