@@ -1,34 +1,28 @@
-# SETTINGS
-class DebugLevels:
-    ERROR: int = 0
-    WARNING: int = 1
-    INFO: int = 2
-    DEBUG: int = 3
+# DEPENDENCIES
+## Built-in
+import os
 
-# STARTUP
-class Commands:
-    UPDATE_COMMAND: str = "git pull"
 
-## Components
+class StartupCommands:
+    UPDATE: str = "git pull"
+
+
+# COMPONENTS
 class ComponentTypes:
-    UI: str = "ui"
     CONTROLLER: str = "controller"
     QUEUE: str = "queue"
-    MODEL_PROVIDER: str = "model_provider"
     SENSES: str = "senses"
     MEMORY: str = "memory"
     ASPIRATIONAL: str = "aspirational"
-    GLOBAL_STRATEGY: str = "global_strategy"
-    AGENT_MODEL: str = "agent_model"
-    EXECUTIVE_FUNCTION: str = "executive_function"
-    COGNITIVE_CONTROL: str = "cognitive_control"
-    TASK_PROSECUTION: str = "task_prosecution"
+    GLOBAL_STRATEGY: str = "global-strategy"
+    AGENT_MODEL: str = "agent-model"
+    EXECUTIVE_FUNCTION: str = "executive-function"
+    COGNITIVE_CONTROL: str = "cognitive-control"
+    TASK_PROSECUTION: str = "task-prosecution"
 
 COMPONENT_TYPES: tuple = (
-    ComponentTypes.UI,
     ComponentTypes.CONTROLLER,
     ComponentTypes.QUEUE,
-    ComponentTypes.MODEL_PROVIDER,
     ComponentTypes.SENSES,
     ComponentTypes.MEMORY,
     ComponentTypes.ASPIRATIONAL,
@@ -39,12 +33,14 @@ COMPONENT_TYPES: tuple = (
     ComponentTypes.TASK_PROSECUTION
 )
 
-## Arguments
+
+# ARGUMENTS
 class StartupArgumentNames:
     DEBUG: str = "debug"
     TEST: str = "test"
     BUILD: str = "build"
     NO_BUILD: str = "no_build"
+    LOCAL: str = "local"
     STARTUP: str = "startup"
     STOP: str = "stop"
     RESTART: str = "restart"
@@ -56,6 +52,7 @@ STARTUP_BOOL_ARGUMENTS: tuple[str, ...] = (
     StartupArgumentNames.TEST,
     StartupArgumentNames.BUILD,
     StartupArgumentNames.NO_BUILD,
+    StartupArgumentNames.LOCAL,
     StartupArgumentNames.STOP,
     StartupArgumentNames.RESTART,
     StartupArgumentNames.UPDATE
@@ -70,6 +67,7 @@ STARTUP_ARGUMENTS: dict[str, frozenset] = {
     StartupArgumentNames.TEST: frozenset(("-t", "--test")),
     StartupArgumentNames.BUILD: frozenset(("-b", "--build")),
     StartupArgumentNames.NO_BUILD: frozenset(("-nb", "--no-build")),
+    StartupArgumentNames.LOCAL: frozenset(("-l", "--local")),
     StartupArgumentNames.STOP: frozenset(("-s", "--stop")),
     StartupArgumentNames.RESTART: frozenset(("-r", "--restart")),
     StartupArgumentNames.UPDATE: frozenset(("-u", "--update")),
@@ -81,6 +79,7 @@ class StartupArgumentsShort:
     TEST: str = "-t"
     BUILD: str = "-b"
     NO_BUILD: str = "-nb"
+    LOCAL: str = "-l"
     STOP: str = "-s"
     RESTART: str = "-r"
     UPDATE: str = "-u"
@@ -91,49 +90,67 @@ STARTUP_ARGUMENTS_HELP: dict[str, str] = {
     StartupArgumentNames.TEST: "Run tests",
     StartupArgumentNames.BUILD: "Build the images",
     StartupArgumentNames.NO_BUILD: "Skip the build",
+    StartupArgumentNames.LOCAL: "Run in local mode for development purposes",
     StartupArgumentNames.STOP: "Stop the ACE cluster",
     StartupArgumentNames.RESTART: "Restart the ACE cluster",
     StartupArgumentNames.UPDATE: "Update the ACE",
     StartupArgumentNames.COMPONENT_TYPE: f"Select the component type. Available types: {', '.join(COMPONENT_TYPES)}"
 }
 
+
+# CONTAINERS
+_SETUP_FOLDER: str = "./setup"
+
 ## Image
 ACE_IMAGE_NAME: str = "ace_prototype"
+_FULL_ACE_IMAGE_NAME: str = f"localhost/{ACE_IMAGE_NAME}:latest"
 
 class ImageCommands:
-    CHECK_IMAGES: str = "docker images"
-    BUILD_IMAGE: str = f"docker build -t {ACE_IMAGE_NAME}  -f ./setup/Dockerfile ."
+    CHECK_IMAGES: str = "podman images"
+    BUILD_IMAGE: str = f"podman build -t {ACE_IMAGE_NAME}  -f {_SETUP_FOLDER}/Containerfile ."
 
-## Cluster
-CLUSTER_NAME: str = "ACE"
-
-KUBE_POD_NAMES: tuple[str, ...] = (
-   "interface",
-   "layers",
-   "llm",
-   "queue"
-)
-
-KUBE_SERVICE_NAMES: tuple[str, ...] = (
-    "ui",
-    "controller",
-    "llm",
-    "queue"
-)
-
-class ClusterCommands:
-    GET_PODS: str = "kubectl get pods"
-    DELETE_POD: str = "kubectl delete pod"
-    DELETE_SERVICE: str = "kubectl delete service"
-    GET_CLUSTER: str = "k3d cluster list"
-    CREATE_CLUSTER: str = f"k3d cluster create {CLUSTER_NAME}"
-    APPLY_CONFIG: str = "kubectl apply -f setup/create_cluster.yaml"
-    EMBED_IMAGE: str = f"k3d image import {ACE_IMAGE_NAME}:latest -c {CLUSTER_NAME}"
-    DEPLOY: str = "kubectl apply -f setup/deployment.yaml"
-
+## Volumes
 class VolumePaths:
-    HOST_CONTROLLER: str = "./storage/controller"
-    HOST_OUTPUT: str = "./storage/output"
-    CONTROLLER: str = "/home/ace/controller"
-    OUTPUT: str = "/home/ace/output"
+    STORAGE_PATH: str = "storage"
+    HOST_PATH: str = f"{os.getcwd()}/{STORAGE_PATH}"
+    HOST_CONTROLLER: str = f"{HOST_PATH}/controller"
+    HOST_OUTPUT: str = f"{HOST_PATH}/output"
+    CONTAINER_PATH: str = f"/home/ace/{STORAGE_PATH}"
+    CONTROLLER: str = f"{CONTAINER_PATH}/controller"
+    OUTPUT: str = f"{CONTAINER_PATH}/output"
 
+class DevVolumePaths:
+    STORAGE_PATH: str = "./.storage"
+    CONTROLLER_STORAGE_PATH: str = f"{STORAGE_PATH}/controller"
+    CONTROLLER_SETTINGS_PATH: str = f"{CONTROLLER_STORAGE_PATH}/settings"
+    OUTPUT_STORAGE_PATH: str = f"{STORAGE_PATH}/output"
+
+## Network
+ACE_NETWORK_NAME: str = "ace-network"
+
+class NetworkCommands:
+    CHECK_NETWORK: str = "podman network ls"
+    CREATE_NETWORK: str = f"podman network create {ACE_NETWORK_NAME}"
+
+## Deployment
+ACE_POD_NAME: str = "ace"
+
+class DeploymentFile: 
+    PATH: str = f"{_SETUP_FOLDER}/deployment.yaml"
+    USER_PATH: str = f"{_SETUP_FOLDER}/.user_deployment.yaml"
+
+class DeploymentCommands:
+    CHECK: str = "podman pod ps"
+    _DEPLOY_COMMAND: str = "podman kube play"
+    DEPLOY: str = f"{_DEPLOY_COMMAND} --network {ACE_NETWORK_NAME} --replace {DeploymentFile.USER_PATH}"
+    STOP: str = f"{_DEPLOY_COMMAND} --network {ACE_NETWORK_NAME} --down {DeploymentFile.USER_PATH}"
+
+DEPLOYMENT_REPLACE_KEYWORDS: dict[str, str] = {
+    "{{ ace_pod_name }}": ACE_POD_NAME,
+    "{{ ace_image_name }}": _FULL_ACE_IMAGE_NAME,
+    "{{ start_command }}": """python3\n    - main.py\n    - -nb\n    - -ct""",
+    "{{ controller_host_path }}": VolumePaths.HOST_CONTROLLER,
+    "{{ controller_container_path }}": VolumePaths.CONTROLLER,
+    "{{ output_host_path }}": VolumePaths.HOST_OUTPUT,
+    "{{ output_container_path }}": VolumePaths.OUTPUT
+}

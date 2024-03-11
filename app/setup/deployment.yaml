@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: {{ ace_pod_name }}
+  name: {{ ace_pod_name }}
+spec:
+  containers:
+  - command:
+    - {{ start_command }}
+    - controller
+    image: {{ ace_image_name }}
+    name: controller
+    ports:
+    - containerPort: 2349
+      hostPort: 2349
+    volumeMounts:
+    - mountPath: {{ controller_container_path }}
+      name: ace-controller-volume
+  - command:
+    - {{ start_command }}
+    - queue
+    image: {{ ace_image_name }}
+    name: queue
+    ports:
+    - containerPort: 4222
+  - command:
+    - {{ start_command }}
+    - senses
+    image: {{ ace_image_name }}
+    name: senses
+    ports:
+    - containerPort: 4932
+  - command:
+    - {{ start_command }}
+    - memory
+    image: {{ ace_image_name }}
+    name: memory
+    ports:
+    - containerPort: 4934
+  - command:
+    - {{ start_command }}
+    - aspirational
+    image: {{ ace_image_name }}
+    name: aspirational
+    ports:
+    - containerPort: 4581
+  - command:
+    - {{ start_command }}
+    - global-strategy
+    image: {{ ace_image_name }}
+    name: global-strategy
+    ports:
+    - containerPort: 4582
+  - command:
+    - {{ start_command }}
+    - agent-model
+    image: {{ ace_image_name }}
+    name: agent-model
+    ports:
+    - containerPort: 4583
+  - command:
+    - {{ start_command }}
+    - executive-function
+    image: {{ ace_image_name }}
+    name: executive-function
+    ports:
+    - containerPort: 4584
+  - command:
+    - {{ start_command }}
+    - cognitive-control
+    image: {{ ace_image_name }}
+    name: cognitive-control
+    ports:
+    - containerPort: 4585
+  - command:
+    - {{ start_command }}
+    - task-prosecution
+    image: {{ ace_image_name }}
+    name: task-prosecution
+    ports:
+    - containerPort: 4586
+    volumeMounts:
+    - mountPath: {{ output_container_path }}
+      name: ace-output-volume
+  volumes:
+  - hostPath:
+      path: {{ controller_host_path }}
+      type: Directory
+    name: ace-controller-volume
+  - hostPath:
+      path: {{ output_host_path }}
+      type: Directory
+    name: ace-output-volume
+    

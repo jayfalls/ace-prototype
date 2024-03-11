@@ -9,7 +9,6 @@
 - Every prompt and output should be less than **4k tokens**
 - Must be **entirely local**
 - Must have a **strong static typing and linting**
-- Must be **scrappy**
 - Must be an **MVP**
 - Must fulfil all the **basic requirements** of an [**ACE Framework**](https://github.com/daveshap/ACE_Framework)
 
