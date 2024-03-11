@@ -5,12 +5,23 @@
 <h1 align="center">🧠 ACE Prototype 🧠</h1>
 
 
-## Usage
+# Dependencies
+
+- Before running start.py!
+    - Install [Podman](https://podman.io/docs/installation)
+
+# Usage
 
 ```shell
-./start.sh
+./run
 ```
 
-## Documentation
+## Arguments
+
+- `-s` Stop the ACE
+- `-r` Restart the ACE
+- `-u` Update the ACE
+
+# Documentation
 
 - [Design Documents](./documentation/design_doc.md)

@@ -9,24 +9,29 @@
 - Every prompt and output should be less than **4k tokens**
 - Must be **entirely local**
 - Must have a **strong static typing and linting**
-- Must be **scrappy**
 - Must be an **MVP**
 - Must fulfil all the **basic requirements** of an [**ACE Framework**](https://github.com/daveshap/ACE_Framework)
 
 
 # Technologies Used
-- **Python** for backend
-    - **MyPy** for static type checking
-    - **Pylint** for linting
-- **Rabbit** for Queue Management
-- **Open Interpreter 2.0** for output maybe?
-- **Podman** for container orchestration
-- **Fast-API->Jinja->HTMX** for UI
-- **Ollama** for serving models
-    - **Phi-Orange** as the base model
-- VectorDB?
+- [**Python**](https://github.com/python/cpython) for backend
+	- [**Pyright**](https://github.com/microsoft/pyright) for static type checking
+	- [**Ruff**](https://github.com/astral-sh/ruff) for linting
+	- [**Pydantic**](https://github.com/pydantic/pydantic) for data validation
+- [**NATS**](https://github.com/nats-io/nats-server) for Queue Management and messaging
+- [**Open Interpreter**](https://github.com/KillianLucas/open-interpreter) for output
+- [**Kubernetes**](https://github.com/kubernetes/kubernetes) for container orchestration
+    - [**Docker**](https://www.docker.com/) for container building and runtime
+    - [**k3d**](https://github.com/k3d-io/k3d) for local kubernetes deployment
+- [**HTMX**](https://github.com/bigskysoftware/htmx) for frontend
+    - [**Fast-API**](https://github.com/tiangolo/fastapi) for api
+	- [**Jinja**](https://github.com/pallets/jinja) for html templating
+- [**Ollama**](https://github.com/ollama/ollama) for serving models
+	- [**Phi-2-Orange**](https://huggingface.co/rhysjones/phi-2-orange) as the base model
+- [**LanceDB**](https://github.com/lancedb/lancedb) for memory
+	- [**SPR**](https://github.com/daveshap/SparsePrimingRepresentations) for compression
 - [**VictoriaMetrics**](https://github.com/VictoriaMetrics/VictoriaMetrics) for metrics aggregation and storage
-    - **Fluent-bit** for metrics and log scraping and consolidation
+	- [**Fluent-bit**](https://github.com/fluent/fluent-bit) for metrics, log scraping and consolidation
 - [**Guardrails**](https://github.com/guardrails-ai/guardrails) for output validation
 
 

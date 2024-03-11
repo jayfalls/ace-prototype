@@ -1,3 +1,8 @@
+# App Specific
+.config
+storage/
+.storage/
+
 # Mac
 .DS_Store
 
