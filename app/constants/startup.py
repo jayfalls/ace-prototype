@@ -13,6 +13,7 @@ class ComponentTypes:
     QUEUE: str = "queue"
     SENSES: str = "senses"
     MEMORY: str = "memory"
+    MODEL_PROVIDER: str = "model_provider"
     ASPIRATIONAL: str = "aspirational"
     GLOBAL_STRATEGY: str = "global-strategy"
     AGENT_MODEL: str = "agent-model"
@@ -25,6 +26,7 @@ COMPONENT_TYPES: tuple = (
     ComponentTypes.QUEUE,
     ComponentTypes.SENSES,
     ComponentTypes.MEMORY,
+    ComponentTypes.MODEL_PROVIDER,
     ComponentTypes.ASPIRATIONAL,
     ComponentTypes.GLOBAL_STRATEGY,
     ComponentTypes.AGENT_MODEL,

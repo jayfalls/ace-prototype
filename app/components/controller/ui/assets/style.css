@@ -183,13 +183,13 @@ body {
 /* end: Welcome */
 
 /* start: Controls */
-.controls {
+.dashboard {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
-.control-button {
+.run-button {
     font-size: 24px;
     width: 120px;
     height: 60px;

@@ -7,7 +7,7 @@
         <i class="fas fa-brain"></i>
     </a>
     <ul id="sidebar-menu" class="sidebar-menu">
-        <li hx-get="/controls"
+        <li hx-get="/dashboard"
             hx-target="#content"
             hx-swap="innerHTML"
             _="on click 
@@ -18,7 +18,7 @@
                     then set @hx-disable to ''
                 end
             end">
-            <a aria-label="Show Controls" href="#" data-title="Controls"><i class="fa fa-tachometer" aria-hidden="true"></i></a>
+            <a aria-label="Show Dashboard" href="#" data-title="Dashboard"><i class="fa fa-tachometer" aria-hidden="true"></i></a>
         </li>
         <li hx-get="/empty"
             hx-target="#content"
@@ -45,19 +45,6 @@
                 end
             end">
             <a aria-label="Show Chat" href="#" data-title="Chat"><i class="fa fa-comment" aria-hidden="true"></i></a>
-        </li>
-        <li hx-get="/empty"
-            hx-target="#content"
-            hx-swap="innerHTML"
-            _="on click 
-                if I do not match .active
-                    remove .active from <li/> in #sidebar-menu
-                    then remove @hx-disable from <li/> in #sidebar-menu
-                    then add .active
-                    then set @hx-disable to ''
-                end
-            end">
-                <a aria-label="Show Statistics" href="#" data-title="Statistics"><i class="fas fa-chart-line" aria-hidden="true"></i></a>
         </li>
         <li hx-get="/empty"
             hx-target="#content"

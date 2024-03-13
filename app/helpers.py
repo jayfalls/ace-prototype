@@ -8,7 +8,7 @@ from exceptions.error_handling import exit_on_error
 
 
 # HELPERS
-def debug_print(message: str, debug_level: int) -> None:
+def debug_print(message: str, debug_level: int = DebugLevels.INFO) -> None:
     if Settings.DEBUG_LEVEL >= debug_level:
         print(message)
 
