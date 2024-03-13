@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # MAIN
 main() {
     python3 -m venv .venv

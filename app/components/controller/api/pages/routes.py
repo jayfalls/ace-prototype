@@ -31,10 +31,10 @@ async def welcome(request: Request) -> _TemplateResponse:
     context: dict = {"request": request}
     return HTML_TEMPLATES.TemplateResponse("partials/welcome.html", context)
 
-@router.get("/controls", response_class=HTMLResponse)
+@router.get("/dashboard", response_class=HTMLResponse)
 async def controls(request: Request) -> _TemplateResponse:
     context: dict = {"request": request}
-    return HTML_TEMPLATES.TemplateResponse("controls.html", context)
+    return HTML_TEMPLATES.TemplateResponse("dashboard.html", context)
 
 @router.get("/chat", response_class=HTMLResponse)
 async def chat(request: Request) -> _TemplateResponse:

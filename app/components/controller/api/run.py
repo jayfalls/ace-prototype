@@ -9,14 +9,14 @@ from starlette.responses import HTMLResponse
 from starlette.templating import _TemplateResponse
 ## Local
 from . import ROUTERS
-from constants.api import HTML_TEMPLATES, FAVICON_PATH
+from constants.api import UI_PATH, HTML_TEMPLATES, FAVICON_PATH
 from .user.service import test_toml
 
 
 # SETUP
 app = FastAPI()
 _ = [app.include_router(router) for router in ROUTERS]
-app.mount("/assets", StaticFiles(directory="components/ui/assets"), name="assets")
+app.mount("/assets", StaticFiles(directory=f"{UI_PATH}/assets"), name="assets")
 
 
 # ROUTES
