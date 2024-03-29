@@ -3,22 +3,27 @@
 import asyncio
 ## Third-Party
 from nats.aio.client import Client as NatsClient
+from nats.aio.msg import Msg as NatsMsg
+from nats.js.client import JetStreamContext
 ## Local
 from components import broker
 from constants.settings import DebugLevels
 from helpers import debug_print
 
 
+nats_client: NatsClient = NatsClient()
+nats_stream: JetStreamContext = JetStreamContext(nats_client)
+
+
+async def test_request(message: NatsMsg) -> None:
+    print(f"Received a message on '{message.subject} {message.reply}': {message.data.decode()}")
+    await broker.publish(stream=nats_stream, queue=message.reply, message="I can help")
+
 async def nats_test(queue: str) -> None:
-    await asyncio.sleep(10)
     nats_client = NatsClient()
     try:
-        nats_client, stream = await broker.connect()
-        await asyncio.sleep(5)
-        for i in range(10):
-            await broker.publish(stream=stream, queue="aspirational", message=f"Hi {i} from {queue}")
-        while True:
-            pass
+        nats_client, nats_stream = await broker.connect()
+        await broker.subscribe(stream=nats_stream, handler=test_request, queue=queue, consumer=queue)
     except Exception as error:
         debug_print(f"ConnectionClosedError: {error}...", DebugLevels.ERROR)
     await nats_client.close()

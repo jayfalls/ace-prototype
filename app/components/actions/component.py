@@ -10,7 +10,6 @@ from helpers import debug_print
 
 
 async def nats_test(queue: str) -> None:
-    await asyncio.sleep(10)
     nats_client = NatsClient()
     try:
         nats_client, stream = await broker.connect()

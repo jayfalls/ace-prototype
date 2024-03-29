@@ -1,39 +1,34 @@
+"""
+Queue constants for the ace_prototype.
+"""
+
+
 # DEPENDENCIES
 ## Local
-from .startup import ComponentTypes as Queues
-from .startup import COMPONENT_TYPES
+from .components import ComponentTypes as Queues
 
 
 class QueueCommands:
+    """Enum"""
     START: str = "nats-server -js"
 
-
-# PUB/SUB
 QUEUES: frozenset[str] = frozenset(
-    [
-        Queues.SENSES,
-        Queues.MEMORY,
+    {
         Queues.ASPIRATIONAL,
         Queues.GLOBAL_STRATEGY,
         Queues.AGENT_MODEL,
         Queues.EXECUTIVE_FUNCTION,
         Queues.COGNITIVE_CONTROL,
         Queues.TASK_PROSECUTION,
-    ]
+    }
 )
 
-## Busses
-class BusDirections:
-    UP: str = "up"
-    DOWN: str = "down"
 
+# BUSSES
 class BusKeys:
-    STATUS: str = "status"
-    ACTION: str = "action"
-
-class BusSources:
-    CONTROLLER: str = Queues.CONTROLLER
-    LAYER: str = "layer"
+    """Enum"""
+    UP: str = "northbound"
+    DOWN: str = "southbound"
 
 BUSSES_DOWN: dict[str, str] = {
     Queues.CONTROLLER: Queues.ASPIRATIONAL,

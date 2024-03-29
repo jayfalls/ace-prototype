@@ -5,12 +5,12 @@ import datetime
 from fastapi import APIRouter, Request, status
 from starlette.templating import _TemplateResponse
 ## Local
-from constants.api import HTML_TEMPLATES, VONE_API_ROUTE
+from constants.api import HTML_TEMPLATES, APIRoutes
 from .models import ChatMessage
 
 
 # CONSTANTS
-VONE_CHAT_ROUTE: str = f"{VONE_API_ROUTE}/chat"
+VONE_CHAT_ROUTE: str = f"{APIRoutes.VONE}/chat"
 
 
 # API

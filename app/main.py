@@ -5,11 +5,10 @@ Starting point for the ACE Prototype, as well as the individual components.
 Author: jayfalls
 
 Arguments:
-    -d/--debug: bool -> Enable debug mode
+    -d/--dev: bool -> Enable dev mode
     -t/--test: bool -> Run tests
     -b/--build: bool -> Build the images
     -nb/--no-build: bool -> Skip the build check
-    -l/--local: bool -> Run in local for development
     -s/--stop: bool -> Stop the ACE cluster
     -r/--restart: bool -> Restart the ACE cluster deployment
     -u/--update: bool -> Update the ACE
@@ -25,16 +24,17 @@ from typing import Callable
 ## Third Party
 import pytest
 ## Local
-from config import DebugSettings
 from constants.settings import DebugLevels
-from constants.startup import (
-    StartupCommands, ComponentTypes, COMPONENT_TYPES, 
-    StartupArgumentNames, STARTUP_BOOL_ARGUMENTS, STARTUP_STRING_ARGUMENTS, STARTUP_ARGUMENTS, STARTUP_ARGUMENTS_HELP,
-    StartupArgumentsShort,
-    ACE_IMAGE_NAME, ImageCommands, 
-    VolumePaths, ACE_NETWORK_NAME, NetworkCommands,
-    DeploymentFile, DEPLOYMENT_REPLACE_KEYWORDS, ACE_POD_NAME, DeploymentCommands
+from constants.startup import StartupCommands
+from constants.components import COMPONENT_TYPES
+from constants.arguments import (ArgumentNames, ARGUMENTS, ARGUMENTS_HELP,
+    BOOL_ARGUMENTS, STRING_ARGUMENTS, ARGUMENTS_SHORT
 )
+from constants.containers import (ACE_IMAGE_NAME, ImageCommands,
+    VolumePaths, ACE_NETWORK_NAME, NetworkCommands,
+    DeploymentFile, DEPLOYMENT_REPLACE_KEYWORDS, DeploymentCommands
+)
+from constants.generic import ACE
 from components import COMPONENT_MAP
 from exceptions.error_handling import exit_on_error
 from helpers import debug_print, execute, exec_check_exists
@@ -42,11 +42,24 @@ from helpers import debug_print, execute, exec_check_exists
 
 # VARIABLES
 class ACEArguments:
-    debug: bool = False
+    """
+    Class representing arguments for the ACE.
+    
+    Attributes:
+        dev (bool): Flag indicating dev mode.
+        should_test (bool): Flag indicating if testing should be done.
+        should_build (bool): Flag indicating if building should be done.
+        no_build (bool): Flag indicating to skip building.
+        local_mode (bool): Flag indicating local mode.
+        stop (bool): Flag indicating to stop.
+        should_restart (bool): Flag indicating if restart is needed.
+        should_update (bool): Flag indicating if update is needed.
+        component (str): String representing a component.
+    """
+    dev: bool = False
     should_test: bool = False
     should_build: bool = False
     no_build: bool = False
-    local_mode: bool = False
     stop: bool = False
     should_restart: bool = False
     should_update: bool = False
@@ -55,33 +68,40 @@ class ACEArguments:
 
 # ARGUMENTS
 def _set_arguments(arg_parser: ArgumentParser) -> None:
-    for argument in STARTUP_BOOL_ARGUMENTS:
-        arg_parser.add_argument(*tuple(STARTUP_ARGUMENTS.get(argument, "")), action='store_true', required=False, help=STARTUP_ARGUMENTS_HELP[argument])
-    for argument in STARTUP_STRING_ARGUMENTS:
-        arg_parser.add_argument(*tuple(STARTUP_ARGUMENTS.get(argument, "")), type=str, required=False, help=STARTUP_ARGUMENTS_HELP[argument])
+    for argument in BOOL_ARGUMENTS:
+        arg_parser.add_argument(*tuple(ARGUMENTS.get(argument, "")), action='store_true', required=False, help=ARGUMENTS_HELP[argument])
+    for argument in STRING_ARGUMENTS:
+        arg_parser.add_argument(*tuple(ARGUMENTS.get(argument, "")), type=str, required=False, help=ARGUMENTS_HELP[argument])
 
 def _parse_arguments(arg_parser: ArgumentParser) -> ACEArguments:
     arguments: dict = {key: value for key, value in vars(arg_parser.parse_args()).items() if value is not None}
     ace_arguments = ACEArguments()
-    ace_arguments.debug = arguments.get(StartupArgumentNames.DEBUG, False)
-    if ace_arguments.debug:
-        global Settings
-        Settings = DebugSettings
-    ace_arguments.component = arguments.get(StartupArgumentNames.COMPONENT_TYPE, StartupArgumentNames.STARTUP)
-    ace_arguments.should_test = arguments.get(StartupArgumentNames.TEST, False)
-    ace_arguments.should_build = arguments.get(StartupArgumentNames.BUILD, False)
-    ace_arguments.no_build = arguments.get(StartupArgumentNames.NO_BUILD, False)
-    ace_arguments.local_mode = arguments.get(StartupArgumentNames.LOCAL, False)
-    ace_arguments.stop = arguments.get(StartupArgumentNames.STOP, False)
-    ace_arguments.should_update = arguments.get(StartupArgumentNames.UPDATE, False)
-    ace_arguments.should_restart = arguments.get(StartupArgumentNames.RESTART, False)
+    ace_arguments.dev = arguments.get(ArgumentNames.DEV, False)
+    if ace_arguments.dev:
+        pass
+        # ASSIGN DEV LOGIC
+    ace_arguments.component = arguments.get(ArgumentNames.COMPONENT_TYPE, ArgumentNames.STARTUP)
+    ace_arguments.should_test = arguments.get(ArgumentNames.TEST, False)
+    ace_arguments.should_build = arguments.get(ArgumentNames.BUILD, False)
+    ace_arguments.no_build = arguments.get(ArgumentNames.SKIP_BUILD, False)
+    ace_arguments.stop = arguments.get(ArgumentNames.STOP, False)
+    ace_arguments.should_update = arguments.get(ArgumentNames.UPDATE, False)
+    ace_arguments.should_restart = arguments.get(ArgumentNames.RESTART, False)
     debug_print(f"Arguments: {ace_arguments.__dict__}", DebugLevels.DEBUG)
-    if ace_arguments.component not in COMPONENT_TYPES and ace_arguments.component != StartupArgumentNames.STARTUP:
+    if ace_arguments.component not in COMPONENT_TYPES and ace_arguments.component != ArgumentNames.STARTUP:
         exit_on_error(f"Invalid component type: {ace_arguments.component}!\nPlease use one of the following: {COMPONENT_TYPES}")
     return ace_arguments
-    
 
 def assign_arguments() -> ACEArguments:
+    """
+    Assigns runtime arguments.
+
+    Arguments:
+        None
+    
+    Returns:
+        ACEArguments containing the runtime arguments.
+    """
     arg_parser = ArgumentParser()
     _set_arguments(arg_parser)
     ace_arguments: ACEArguments = _parse_arguments(arg_parser)
@@ -89,10 +109,10 @@ def assign_arguments() -> ACEArguments:
 
 
 # SETUP
-def _setup_folders(local_mode: bool) -> None:
-    if not local_mode:
-        required_paths: tuple[str, ...] = (VolumePaths.HOST_CONTROLLER, VolumePaths.HOST_OUTPUT)
-        _ = [os.makedirs(dir_path, exist_ok=True) for dir_path in required_paths]
+def _setup_folders() -> None:
+    required_paths: tuple[str, ...] = (VolumePaths.HOST_CONTROLLER, VolumePaths.HOST_OUTPUT)
+    _ = [os.makedirs(dir_path, exist_ok=True) for dir_path in required_paths]
+    # DO DEV AS WELL
 
 def _setup_user_deployment_file() -> None:
     if os.path.isfile(DeploymentFile.USER_PATH):
@@ -106,14 +126,33 @@ def _setup_user_deployment_file() -> None:
     with open(DeploymentFile.USER_PATH, "w", encoding="utf-8") as user_deployment_file:
         user_deployment_file.write(deployment_string)
         user_deployment_file.close()
+    # DO DEV AS WELL
 
-def setup(local_mode: bool) -> None:
-    _setup_folders(local_mode)
+def setup() -> None:
+    """
+    A function to set up folders and the user deployment file.
+    
+    Arguments:
+        None
+    
+    Returns:
+        None
+    """
+    _setup_folders()
     _setup_user_deployment_file()
 
 
 # BUILD
 def build(request_build: bool) -> bool:
+    """
+    A function which builds if image doesn't exist or if request_build flag is set.
+    
+    Arguments: 
+        request_build: bool | Flag indicating if a build is requested.
+    
+    Returns:
+        A bool indicating whether a build was performed.
+    """
     print("\nChecking if build is required...")
     check_images_command: str = ImageCommands.CHECK_IMAGES
     image_exists: bool = exec_check_exists(check_images_command, ACE_IMAGE_NAME)
@@ -143,17 +182,32 @@ def _run_tests(tests_to_run: tuple[str, ...]) -> None:
     pytest.main(args)
 
 def test() -> None:
+    """
+    Fake test.
+
+    Arguments:
+        None
+
+    Returns:
+        None
+    """
     print("\nTest Mode\n")
-    class test_types:
-        TEST1: str = "test1"
-        TEST2: str = "test2"
-    tests: tuple[str, ...] = (test_types.TEST1, test_types.TEST2)
+    tests: tuple[str, ...] = ("test_1", "test_2", "test_3")
     _run_tests(tests)
 
 
 # RUNTIME
 def update() -> None:
-    print("\nUpdating ACE...")
+    """
+    Update the ACE.
+    
+    Arguments:
+        None
+    
+    Returns:
+        None
+    """
+    print(f"\nUpdating {ACE.NAME}...")
     update_command: str = StartupCommands.UPDATE
     execute(update_command)
 
@@ -163,35 +217,73 @@ def _setup_network() -> None:
         execute(NetworkCommands.CREATE_NETWORK)
 
 def stop(exists: bool) -> None:
+    """
+    Stops the ACE if it exists.
+
+    Arguments:
+        exists: bool | Indicates if the ace is running.
+    
+    Returns:
+        None
+    """
     if not exists:
-        print("ACE is not running! Cannot stop...")
+        print(f"{ACE.NAME} is not running! Cannot stop...")
         return
-    print("\nStopping ACE...")
+    print(f"\nStopping {ACE.NAME}...")
     execute(DeploymentCommands.STOP)
 
 def start_ace(restart: bool, exists: bool) -> None:
+    """
+    Start the ACE, handling restarts.
+
+    Arguments:
+        restart: bool | Whether to restart the ACE.
+        exists: bool | Whether the ACE is already running.
+
+    Returns:
+        None
+    """
     deploy_command: str = DeploymentCommands.DEPLOY
     if restart:
-        print("\nRestarting ACE...")
+        print(f"\nRestarting {ACE.NAME}...")
         execute(deploy_command)
         return
     if exists:
-        print(f"\nACE is already running...\n\nPlease run with {StartupArgumentsShort.RESTART} to restart!")
+        print(f"\nACE is already running...\n\nPlease run with {ARGUMENTS_SHORT[ArgumentNames.RESTART]} to restart!")
         return
-    print("\nStarting ACE...")
-    execute(deploy_command)      
+    print(f"\nStarting {ACE.NAME}...")
+    execute(deploy_command)
 
-def start_component(component_type: str, local_mode: bool) -> None:
+def start_component(component_type: str) -> None:
+    """
+    Start a component of a specified type, optionally in dev mode.
+
+    Args:
+        component_type: str | The type of component to start.
+        dev: bool | Whether to start the component in dev or not.
+
+    Returns:
+        None
+    """
     title = component_type.replace("_", " ").title()
     print(f"\nStarting {title}...")
-    start_component: Callable[[str], None] = COMPONENT_MAP[component_type]
-    start_component(component_type)
+    start: Callable[[str], None] = COMPONENT_MAP[component_type]
+    start(component_type)
 
 
 # MAIN
 def main() -> None:
+    """
+    Initialises and starts the ACE / ACE component based off the starting arguments.
+
+    Arguments:
+        None
+
+    Returns:
+        None
+    """
     ace_arguments: ACEArguments = assign_arguments()
-    setup(ace_arguments.local_mode)
+    setup()
     if ace_arguments.should_update:
         ace_arguments.should_build = True
         update()
@@ -202,10 +294,10 @@ def main() -> None:
     if ace_arguments.should_test:
         test()
         return
-    if not ace_arguments.component == StartupArgumentNames.STARTUP:
-        start_component(ace_arguments.component, ace_arguments.local_mode)
+    if not ace_arguments.component == ArgumentNames.STARTUP:
+        start_component(ace_arguments.component)
         return
-    exists: bool = exec_check_exists(DeploymentCommands.CHECK, ACE_POD_NAME)
+    exists: bool = exec_check_exists(DeploymentCommands.CHECK, ACE.LOWER_NAME)
     if ace_arguments.stop:
         stop(exists)
         return

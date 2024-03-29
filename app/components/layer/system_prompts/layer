@@ -1,0 +1,20 @@
+{{ context }}
+
+# IDENTITY
+
+{{ identity }}
+
+# INCOMING MESSAGES
+
+## GUIDANCE
+{{ guidance }}
+
+## DATA
+{{ data }}
+
+## TELEMETRY
+{{ telemetry }}
+
+# RESPONSE FORMAT
+
+{{ response_format }}

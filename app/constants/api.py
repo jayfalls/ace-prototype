@@ -1,20 +1,38 @@
+"""
+API constants for the ace_prototype.
+"""
+
+
 # DEPENDENCIES
-## Built-in
-import os
 ## Third-Party
 from fastapi.templating import Jinja2Templates
 ## Local
-from constants.startup import VolumePaths
+from .containers import VolumePaths
+from .components import ComponentTypes
+from .generic import Paths
 
 
-module_path = os.path.realpath(__file__)
+class APIRoutes:
+    """Enum"""
+    VONE: str = "/v1"
 
-RUNTIME_CONFIG_PATH: str = f"{os.path.dirname(module_path)}/.config"
-STORAGE_PATH: str = f"{VolumePaths.STORAGE_PATH}/controller"
-SETTINGS_PATH: str = f"{STORAGE_PATH}/settings"
-VONE_API_ROUTE: str = "/v1"
-CONTROLLER_PATH: str = "components/controller"
-API_PATH: str = f"{CONTROLLER_PATH}/api"
-UI_PATH: str = f"{CONTROLLER_PATH}/ui"
-HTML_TEMPLATES = Jinja2Templates(directory=f"{UI_PATH}/templates")
-FAVICON_PATH: str = f"{UI_PATH}/assets/images/favicon.ico"
+APIS: frozenset[str] = frozenset(
+    {
+        ComponentTypes.CONTROLLER,
+        ComponentTypes.TELEMETRY,
+        ComponentTypes.ACTIONS,
+        ComponentTypes.MEMORY,
+        ComponentTypes.MODEL_PROVIDER
+    }
+)
+
+class APIPaths:
+    """Enum"""
+    STORAGE: str = f"{VolumePaths.STORAGE}/controller"
+    SETTINGS: str = f"{STORAGE}/settings"
+    API: str = f"{Paths.CONTROLLER}/api"
+    RUNTIME_CONFIG: str = f"{API}/.config"
+    UI: str = f"{Paths.CONTROLLER}/ui"
+    FAVICON: str = f"{UI}/assets/images/favicon.ico"
+
+HTML_TEMPLATES = Jinja2Templates(directory=f"{APIPaths.UI}/templates")

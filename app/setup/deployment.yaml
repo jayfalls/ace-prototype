@@ -8,88 +8,125 @@ spec:
   containers:
   - command:
     - {{ start_command }}
-    - controller
+    - {{ controller_name }}
     image: {{ ace_image_name }}
-    name: controller
+    name: {{ controller_name }}
     ports:
-    - containerPort: 2349
-      hostPort: 2349
+    - containerPort: {{ controller_port }}
+      hostPort: {{ controller_port }}
     volumeMounts:
     - mountPath: {{ controller_container_path }}
-      name: ace-controller-volume
+      name: {{ controller_volume }}
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
   - command:
     - {{ start_command }}
-    - queue
+    - {{ queue_name }}
     image: {{ ace_image_name }}
-    name: queue
+    name: {{ queue_name }}
     ports:
-    - containerPort: 4222
+    - containerPort: {{ queue_port }}
   - command:
     - {{ start_command }}
-    - senses
+    - {{ model_provider_name }}
     image: {{ ace_image_name }}
-    name: senses
+    name: {{ model_provider_name }}
     ports:
-    - containerPort: 4932
+    - containerPort: {{ model_provider_port }}
   - command:
     - {{ start_command }}
-    - memory
+    - {{ telemetry_name }}
     image: {{ ace_image_name }}
-    name: memory
+    name: {{ telemetry_name }}
     ports:
-    - containerPort: 4934
+    - containerPort: {{ telemetry_port }}
   - command:
     - {{ start_command }}
-    - aspirational
+    - {{ actions_name }}
     image: {{ ace_image_name }}
-    name: aspirational
+    name: {{ actions_name }}
     ports:
-    - containerPort: 4581
+    - containerPort: {{ actions_port }}
   - command:
     - {{ start_command }}
-    - global-strategy
+    - {{ memory_name }}
     image: {{ ace_image_name }}
-    name: global-strategy
+    name: {{ memory_name }}
     ports:
-    - containerPort: 4582
+    - containerPort: {{ memory_port }}
   - command:
     - {{ start_command }}
-    - agent-model
+    - {{ aspirational_name }}
     image: {{ ace_image_name }}
-    name: agent-model
+    name: {{ aspirational_name }}
     ports:
-    - containerPort: 4583
-  - command:
-    - {{ start_command }}
-    - executive-function
-    image: {{ ace_image_name }}
-    name: executive-function
-    ports:
-    - containerPort: 4584
-  - command:
-    - {{ start_command }}
-    - cognitive-control
-    image: {{ ace_image_name }}
-    name: cognitive-control
-    ports:
-    - containerPort: 4585
-  - command:
-    - {{ start_command }}
-    - task-prosecution
-    image: {{ ace_image_name }}
-    name: task-prosecution
-    ports:
-    - containerPort: 4586
+    - containerPort: {{ aspirational_port }}
     volumeMounts:
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
+  - command:
+    - {{ start_command }}
+    - {{ global_strategy_name }}
+    image: {{ ace_image_name }}
+    name: {{ global_strategy_name }}
+    ports:
+    - containerPort: {{ global_strategy_port }}
+    volumeMounts:
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
+  - command:
+    - {{ start_command }}
+    - {{ agent_model_name }}
+    image: {{ ace_image_name }}
+    name: {{ agent_model_name }}
+    ports:
+    - containerPort: {{ agent_model_port }}
+    volumeMounts:
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
+  - command:
+    - {{ start_command }}
+    - {{ executive_function_name }}
+    image: {{ ace_image_name }}
+    name: {{ executive_function_name }}
+    ports:
+    - containerPort: {{ executive_function_port }}
+    volumeMounts:
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
+  - command:
+    - {{ start_command }}
+    - {{ cognitive_control_name }}
+    image: {{ ace_image_name }}
+    name: {{ cognitive_control_name }}
+    ports:
+    - containerPort: {{ cognitive_control_port }}
+    volumeMounts:
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
+  - command:
+    - {{ start_command }}
+    - {{ task_prosecution_name }}
+    image: {{ ace_image_name }}
+    name: {{ task_prosecution_name }}
+    ports:
+    - containerPort: {{ task_prosecution_port }}
+    volumeMounts:
+    - mountPath: {{ layers_container_path }}
+      name: {{ layers_volume }}
     - mountPath: {{ output_container_path }}
-      name: ace-output-volume
+      name: {{ output_volume }}
   volumes:
   - hostPath:
       path: {{ controller_host_path }}
       type: Directory
-    name: ace-controller-volume
+    name: {{ controller_volume }}
+  - hostPath:
+      path: {{ layers_host_path }}
+      type: Directory
+    name: {{ layers_volume }}
   - hostPath:
       path: {{ output_host_path }}
       type: Directory
-    name: ace-output-volume
+    name: {{ output_volume }}
     

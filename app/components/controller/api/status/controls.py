@@ -1,28 +1,29 @@
 # DEPENDENCIES
-## Third-Party
-from pydantic import ValidationError
+## Built-in
+from typing import Union
 ## Local
-from constants.layer import LayerKeys, LayerActions
+from components.layer.layer_messages import LayerMessage
+from constants.layer import LayerKeys, LayerCommands
 from constants.queue import Queues
 from ..bus.service import bus_down
-from ..bus.models import PostBusMessage
+from ..bus.models import BusMessage
 
 
 # PRIVATE
 def _power_on_self_test() -> None:
-    post_payload: dict[str, str] = {
-        LayerKeys.QUEUE: Queues.CONTROLLER,
-        LayerKeys.MESSAGE: LayerActions.NONE,
-        LayerKeys.ACTION: LayerActions.POST,
+    commands_dict: dict[str, Union[str, dict[str, str]]] = {
+        LayerKeys.MESSAGE_TYPE: LayerKeys.COMMANDS, 
+        LayerKeys.MESSAGES: {
+            LayerKeys.HEADING: LayerKeys.ACTIONS, 
+            LayerKeys.CONTENT: LayerCommands.POST
+        }
     }
+    commands_message: LayerMessage = LayerMessage.model_validate(commands_dict)
+    post_payload = BusMessage(source_queue=Queues.CONTROLLER, layer_message=commands_message)
     try:
-        PostBusMessage(**post_payload)
         bus_down(post_payload)
-    except ValidationError as error:
-        raise error
     except Exception as error:
         raise error
-    
 
 
 # PUBLIC

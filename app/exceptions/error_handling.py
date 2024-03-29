@@ -1,9 +1,10 @@
 # DEPENDENCIES
 ## Built-in
-import sys
+import os
 
 
 # FUNCTIONS
 def exit_on_error(error: str) -> None:
     print(f"ERROR: {error}")
-    sys.exit(1)
+    os._exit(1)
+    
