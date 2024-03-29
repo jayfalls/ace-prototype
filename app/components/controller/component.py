@@ -31,7 +31,8 @@ def setup(local_mode: bool) -> None:
 
 
 # MAIN
-def main(local_mode: bool = False) -> None:
+def component(component_type: str) -> None:
+    local_mode: bool = False
     setup(local_mode)
     print("\nStarting Server Client...")
     uvicorn.run(run.app, host="0.0.0.0", port=2349)

@@ -21,6 +21,7 @@ Arguments:
 ## Built-in
 from argparse import ArgumentParser
 import os
+from typing import Callable
 ## Third Party
 import pytest
 ## Local
@@ -34,9 +35,7 @@ from constants.startup import (
     VolumePaths, ACE_NETWORK_NAME, NetworkCommands,
     DeploymentFile, DEPLOYMENT_REPLACE_KEYWORDS, ACE_POD_NAME, DeploymentCommands
 )
-from components import (
-    controller, queue, senses, memory, layer
-)
+from components import COMPONENT_MAP
 from exceptions.error_handling import exit_on_error
 from helpers import debug_print, execute, exec_check_exists
 
@@ -87,23 +86,6 @@ def assign_arguments() -> ACEArguments:
     _set_arguments(arg_parser)
     ace_arguments: ACEArguments = _parse_arguments(arg_parser)
     return ace_arguments
-    
-## Building
-def build(request_build: bool) -> bool:
-    print("\nChecking if build is required...")
-    check_images_command: str = ImageCommands.CHECK_IMAGES
-    image_exists: bool = exec_check_exists(check_images_command, ACE_IMAGE_NAME)
-    should_build: bool = not image_exists or request_build
-    if should_build:
-        if not image_exists:
-            print("\nImage does not exist\nBuilding container...")
-        else:
-            print("\nBuilding container...")
-        build_ace_images_command: str = ImageCommands.BUILD_IMAGE
-        execute(build_ace_images_command, error_message="Unable to build image")
-        return should_build
-    print("\nImage already exists\nSkipping build...")
-    return should_build
 
 
 # SETUP
@@ -128,6 +110,24 @@ def _setup_user_deployment_file() -> None:
 def setup(local_mode: bool) -> None:
     _setup_folders(local_mode)
     _setup_user_deployment_file()
+
+
+# BUILD
+def build(request_build: bool) -> bool:
+    print("\nChecking if build is required...")
+    check_images_command: str = ImageCommands.CHECK_IMAGES
+    image_exists: bool = exec_check_exists(check_images_command, ACE_IMAGE_NAME)
+    should_build: bool = not image_exists or request_build
+    if should_build:
+        if not image_exists:
+            print("\nImage does not exist\nBuilding container...")
+        else:
+            print("\nBuilding container...")
+        build_ace_images_command: str = ImageCommands.BUILD_IMAGE
+        execute(build_ace_images_command, error_message="Unable to build image")
+        return should_build
+    print("\nImage already exists\nSkipping build...")
+    return should_build
 
 
 # TESTS
@@ -181,20 +181,12 @@ def start_ace(restart: bool, exists: bool) -> None:
     print("\nStarting ACE...")
     execute(deploy_command)      
 
-def start_component(title: str, local_mode: bool) -> None:
-    print_title = title.replace("_", " ").title()
-    print(f"\nStarting {print_title}")
-    match title:
-        case ComponentTypes.CONTROLLER:
-            controller.main(local_mode=local_mode)
-        case ComponentTypes.QUEUE:
-            queue.main()
-        case ComponentTypes.SENSES:
-            senses.main()
-        case ComponentTypes.MEMORY:
-            memory.main()
-        case _:
-            layer.main(title)
+def start_component(component_type: str, local_mode: bool) -> None:
+    title = component_type.replace("_", " ").title()
+    print(f"\nStarting {title}...")
+    start_component: Callable[[str], None] = COMPONENT_MAP[component_type]
+    start_component(component_type)
+
 
 # MAIN
 def main() -> None:
@@ -219,7 +211,6 @@ def main() -> None:
         return
     _setup_network()
     start_ace(ace_arguments.should_restart, exists)
-    
 
 if __name__ == "__main__":
     main()

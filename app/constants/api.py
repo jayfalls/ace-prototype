@@ -13,5 +13,8 @@ RUNTIME_CONFIG_PATH: str = f"{os.path.dirname(module_path)}/.config"
 STORAGE_PATH: str = f"{VolumePaths.STORAGE_PATH}/controller"
 SETTINGS_PATH: str = f"{STORAGE_PATH}/settings"
 VONE_API_ROUTE: str = "/v1"
-HTML_TEMPLATES = Jinja2Templates(directory="components/ui/templates")
-FAVICON_PATH: str = "components/ui/assets/images/favicon.ico"
+CONTROLLER_PATH: str = "components/controller"
+API_PATH: str = f"{CONTROLLER_PATH}/api"
+UI_PATH: str = f"{CONTROLLER_PATH}/ui"
+HTML_TEMPLATES = Jinja2Templates(directory=f"{UI_PATH}/templates")
+FAVICON_PATH: str = f"{UI_PATH}/assets/images/favicon.ico"
