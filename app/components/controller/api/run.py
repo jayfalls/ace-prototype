@@ -9,20 +9,20 @@ from starlette.responses import HTMLResponse
 from starlette.templating import _TemplateResponse
 ## Local
 from . import ROUTERS
-from constants.api import UI_PATH, HTML_TEMPLATES, FAVICON_PATH
+from constants.api import APIPaths, HTML_TEMPLATES
 from .user.service import test_toml
 
 
 # SETUP
 app = FastAPI()
 _ = [app.include_router(router) for router in ROUTERS]
-app.mount("/assets", StaticFiles(directory=f"{UI_PATH}/assets"), name="assets")
+app.mount("/assets", StaticFiles(directory=f"{APIPaths.UI}/assets"), name="assets")
 
 
 # ROUTES
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon() -> FileResponse:
-    return FileResponse(FAVICON_PATH)
+    return FileResponse(APIPaths.FAVICON)
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request) -> _TemplateResponse:

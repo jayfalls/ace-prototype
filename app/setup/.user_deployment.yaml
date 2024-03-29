@@ -9,7 +9,7 @@ spec:
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
     - controller
     image: localhost/ace_prototype:latest
@@ -19,11 +19,13 @@ spec:
       hostPort: 2349
     volumeMounts:
     - mountPath: /home/ace/storage/controller
-      name: ace-controller-volume
+      name: ace_controller_volume
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
     - queue
     image: localhost/ace_prototype:latest
@@ -33,93 +35,134 @@ spec:
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
-    - senses
+    - model_provider
     image: localhost/ace_prototype:latest
-    name: senses
+    name: model_provider
+    ports:
+    - containerPort: 4223
+  - command:
+    - python3
+    - main.py
+    - -sb
+    - -ct
+    - telemetry
+    image: localhost/ace_prototype:latest
+    name: telemetry
+    ports:
+    - containerPort: 4931
+  - command:
+    - python3
+    - main.py
+    - -sb
+    - -ct
+    - actions
+    image: localhost/ace_prototype:latest
+    name: actions
     ports:
     - containerPort: 4932
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
     - memory
     image: localhost/ace_prototype:latest
     name: memory
     ports:
-    - containerPort: 4934
+    - containerPort: 4933
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
     - aspirational
     image: localhost/ace_prototype:latest
     name: aspirational
     ports:
     - containerPort: 4581
+    volumeMounts:
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
-    - global-strategy
+    - global_strategy
     image: localhost/ace_prototype:latest
-    name: global-strategy
+    name: global_strategy
     ports:
     - containerPort: 4582
+    volumeMounts:
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
-    - agent-model
+    - agent_model
     image: localhost/ace_prototype:latest
-    name: agent-model
+    name: agent_model
     ports:
     - containerPort: 4583
+    volumeMounts:
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
-    - executive-function
+    - executive_function
     image: localhost/ace_prototype:latest
-    name: executive-function
+    name: executive_function
     ports:
     - containerPort: 4584
+    volumeMounts:
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
-    - cognitive-control
+    - cognitive_control
     image: localhost/ace_prototype:latest
-    name: cognitive-control
+    name: cognitive_control
     ports:
     - containerPort: 4585
+    volumeMounts:
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
   - command:
     - python3
     - main.py
-    - -nb
+    - -sb
     - -ct
-    - task-prosecution
+    - task_prosecution
     image: localhost/ace_prototype:latest
-    name: task-prosecution
+    name: task_prosecution
     ports:
     - containerPort: 4586
     volumeMounts:
+    - mountPath: /home/ace/storage/layers
+      name: ace_layers_volume
     - mountPath: /home/ace/storage/output
-      name: ace-output-volume
+      name: ace_output_volume
   volumes:
   - hostPath:
       path: /Users/jason/programming/personal_projects/ace_prototype/app/storage/controller
       type: Directory
-    name: ace-controller-volume
+    name: ace_controller_volume
+  - hostPath:
+      path: /Users/jason/programming/personal_projects/ace_prototype/app/storage/layers
+      type: Directory
+    name: ace_layers_volume
   - hostPath:
       path: /Users/jason/programming/personal_projects/ace_prototype/app/storage/output
       type: Directory
-    name: ace-output-volume
+    name: ace_output_volume
     

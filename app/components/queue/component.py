@@ -9,11 +9,10 @@ from . import broker
 
 
 async def queue_server() -> None:
+    print("Starting queue server...")
     loop = asyncio.get_running_loop()
     executor = futures.ThreadPoolExecutor()
     task = loop.run_in_executor(executor, execute, QueueCommands.START)
-    print("Waiting for connection...")
-    await asyncio.sleep(5)
     print("Establishing queues...")
     _, stream = await broker.connect()
     await broker.establish_queues(stream=stream, queues=QUEUES)

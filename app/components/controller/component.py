@@ -7,22 +7,22 @@ import toml
 import uvicorn
 ## Local
 from .api import run
-from constants.api import RUNTIME_CONFIG_PATH, SETTINGS_PATH
-from constants.startup import DevVolumePaths
+from constants.api import APIPaths
+from constants.containers import DevVolumePaths
 
 
 # SETUP
 def setup(local_mode: bool) -> None:
     print("\nSetting Up Controller Files...")
-    settings_path: str = SETTINGS_PATH
+    settings_path: str = APIPaths.SETTINGS
     if local_mode:
-        dirs: tuple[str, ...] = (DevVolumePaths.CONTROLLER_STORAGE_PATH, DevVolumePaths.OUTPUT_STORAGE_PATH)
+        dirs: tuple[str, ...] = (DevVolumePaths.CONTROLLER_STORAGE, DevVolumePaths.OUTPUT_STORAGE)
         _ = [os.makedirs(dirs, exist_ok=True) for dirs in dirs]
-        settings_path = DevVolumePaths.CONTROLLER_SETTINGS_PATH
+        settings_path = DevVolumePaths.CONTROLLER_SETTINGS
     if not os.path.exists(settings_path):
         open(settings_path, 'a').close()
     
-    with open(RUNTIME_CONFIG_PATH, 'w', encoding='utf-8') as config_file:
+    with open(APIPaths.RUNTIME_CONFIG, 'w', encoding='utf-8') as config_file:
         runtime_config: dict[str, Union[bool, str]] = {
             "local_mode": local_mode,
             "settings_path": settings_path

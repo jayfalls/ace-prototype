@@ -2,6 +2,7 @@
 .config
 storage/
 .storage/
+expirements/
 
 # Mac
 .DS_Store

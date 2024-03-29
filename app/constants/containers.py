@@ -1,0 +1,127 @@
+"""
+Container constants for the ace_prototype.
+"""
+
+
+# DEPENDENCIES
+## Built-in
+import os
+## Local
+from .components import ComponentTypes
+from .generic import ACE
+
+
+_SETUP_FOLDER: str = "./setup"
+_ORCHESTRATOR: str = "podman"
+
+
+# IMAGE
+ACE_IMAGE_NAME: str = "ace_prototype"
+_FULL_ACE_IMAGE_NAME: str = f"localhost/{ACE_IMAGE_NAME}:latest"
+
+class ImageCommands:
+    """Enum"""
+    CHECK_IMAGES: str = f"{_ORCHESTRATOR} images"
+    BUILD_IMAGE: str = f"{_ORCHESTRATOR} build -t {ACE_IMAGE_NAME}  -f {_SETUP_FOLDER}/Containerfile ."
+
+
+# VOLUMES
+_VOLUME: str = "volume"
+
+class VolumePaths:
+    """Enum"""
+    STORAGE: str = "storage"
+    HOST: str = f"{os.getcwd()}/{STORAGE}"
+    HOST_CONTROLLER: str = f"{HOST}/controller"
+    HOST_LAYERS: str = f"{HOST}/layers"
+    HOST_OUTPUT: str = f"{HOST}/output"
+    CONTAINER: str = f"/home/{ACE.LOWER_NAME}/{STORAGE}"
+    CONTROLLER: str = f"{CONTAINER}/controller"
+    LAYERS: str = f"{CONTAINER}/layers"
+    OUTPUT: str = f"{CONTAINER}/output"
+
+class DevVolumePaths:
+    """Enum"""
+    STORAGE: str = "./.storage"
+    CONTROLLER_STORAGE: str = f"{STORAGE}/controller"
+    CONTROLLER_SETTINGS: str = f"{CONTROLLER_STORAGE}/settings"
+    LAYERS: str = f"{STORAGE}/layers"
+    OUTPUT_STORAGE: str = f"{STORAGE}/output"
+
+
+# NETWORK
+ACE_NETWORK_NAME: str = f"{ACE.LOWER_NAME}_network"
+
+class NetworkCommands:
+    """Enum"""
+    CHECK_NETWORK: str = f"{_ORCHESTRATOR} network ls"
+    CREATE_NETWORK: str = f"{_ORCHESTRATOR} network create {ACE_NETWORK_NAME}"
+
+
+# DEPLOYMENT
+class DeploymentFile:
+    """Enum"""
+    PATH: str = f"{_SETUP_FOLDER}/deployment.yaml"
+    USER_PATH: str = f"{_SETUP_FOLDER}/.user_deployment.yaml"
+
+class DeploymentCommands:
+    """Enum"""
+    CHECK: str = f"{_ORCHESTRATOR} pod ps"
+    _DEPLOY_COMMAND: str = f"{_ORCHESTRATOR} kube play"
+    DEPLOY: str = f"{_DEPLOY_COMMAND} --network {ACE_NETWORK_NAME} --replace {DeploymentFile.USER_PATH}"
+    STOP: str = f"{_DEPLOY_COMMAND} --network {ACE_NETWORK_NAME} --down {DeploymentFile.USER_PATH}"
+
+class ComponentPorts:
+    """Enum"""
+    CONTROLLER: str = "2349"
+    QUEUE: str = "4222"
+    MODEL_PROVIDER_PORT: str = "4223"
+    TELEMETRY: str = "4931"
+    ACTIONS: str = "4932"
+    MEMORY: str = "4933"
+    ASPIRATIONAL: str = "4581"
+    GLOBAL_STRATEGY: str = "4582"
+    AGENT_MODEL: str = "4583"
+    EXECUTIVE_FUNCTION: str = "4584"
+    COGNITIVE_CONTROL: str = "4585"
+    TASK_PROSECUTION: str = "4586"
+
+
+DEPLOYMENT_REPLACE_KEYWORDS: dict[str, str] = {
+    "{{ ace_pod_name }}": ACE.LOWER_NAME,
+    "{{ ace_image_name }}": _FULL_ACE_IMAGE_NAME,
+    "{{ start_command }}": """python3\n    - main.py\n    - -sb\n    - -ct""",
+    "{{ controller_name }}": ComponentTypes.CONTROLLER,
+    "{{ controller_port }}": ComponentPorts.CONTROLLER,
+    "{{ queue_name }}": ComponentTypes.QUEUE,
+    "{{ queue_port }}": ComponentPorts.QUEUE,
+    "{{ model_provider_name }}": ComponentTypes.MODEL_PROVIDER,
+    "{{ model_provider_port }}": ComponentPorts.MODEL_PROVIDER_PORT,
+    "{{ telemetry_name }}": ComponentTypes.TELEMETRY,
+    "{{ telemetry_port }}": ComponentPorts.TELEMETRY,
+    "{{ actions_name }}": ComponentTypes.ACTIONS,
+    "{{ actions_port }}": ComponentPorts.ACTIONS,
+    "{{ memory_name }}": ComponentTypes.MEMORY,
+    "{{ memory_port }}": ComponentPorts.MEMORY,
+    "{{ aspirational_name }}": ComponentTypes.ASPIRATIONAL,
+    "{{ aspirational_port }}": ComponentPorts.ASPIRATIONAL,
+    "{{ global_strategy_name }}": ComponentTypes.GLOBAL_STRATEGY,
+    "{{ global_strategy_port }}": ComponentPorts.GLOBAL_STRATEGY,
+    "{{ agent_model_name }}": ComponentTypes.AGENT_MODEL,
+    "{{ agent_model_port }}": ComponentPorts.AGENT_MODEL,
+    "{{ executive_function_name }}": ComponentTypes.EXECUTIVE_FUNCTION,
+    "{{ executive_function_port }}": ComponentPorts.EXECUTIVE_FUNCTION,
+    "{{ cognitive_control_name }}": ComponentTypes.COGNITIVE_CONTROL,
+    "{{ cognitive_control_port }}": ComponentPorts.COGNITIVE_CONTROL,
+    "{{ task_prosecution_name }}": ComponentTypes.TASK_PROSECUTION,
+    "{{ task_prosecution_port }}": ComponentPorts.TASK_PROSECUTION,
+    "{{ controller_host_path }}": VolumePaths.HOST_CONTROLLER,
+    "{{ controller_container_path }}": VolumePaths.CONTROLLER,
+    "{{ controller_volume }}": f"{ACE.LOWER_NAME}_{ComponentTypes.CONTROLLER}_{_VOLUME}",
+    "{{ layers_host_path }}": VolumePaths.HOST_LAYERS,
+    "{{ layers_container_path }}": VolumePaths.LAYERS,
+    "{{ layers_volume }}": f"{ACE.LOWER_NAME}_layers_{_VOLUME}",
+    "{{ output_host_path }}": VolumePaths.HOST_OUTPUT,
+    "{{ output_container_path }}": VolumePaths.OUTPUT,
+    "{{ output_volume }}": f"{ACE.LOWER_NAME}_output_{_VOLUME}"
+}

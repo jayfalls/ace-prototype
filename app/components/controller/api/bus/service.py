@@ -1,7 +1,6 @@
 # DEPENDENCIES
 ## Built-in
 import asyncio
-import json
 from threading import Thread
 ## Third-Party
 from nats.aio.client import Client as NatsClient
@@ -9,50 +8,40 @@ from nats.js.client import JetStreamContext
 from pydantic import ValidationError
 ## Local
 from components import broker
-from constants.layer import LayerKeys, LayerActions
-from constants.queue import BusDirections, BUSSES_DOWN, BUSSES_UP
-from .models import BusPublishPayload
-
-
-# HELPERS
-def _inverse(direction: str) -> str:
-    return BusDirections.UP if direction == BusDirections.DOWN else BusDirections.DOWN
+from components.layer.layer_messages import LayerMessage
+from constants.queue import BusKeys, BUSSES_DOWN, BUSSES_UP
+from .models import BusMessage
 
 
 # QUEUE
-async def _connect_and_publish(queue: str, message: str) -> None:
+async def _connect_and_publish(queue: str, layer_message: LayerMessage) -> None:
     nats_client: NatsClient
     nats_stream: JetStreamContext
     nats_client, nats_stream = await broker.connect()
-    await broker.publish(stream=nats_stream, queue=queue, message=message)
+    await broker.publish(stream=nats_stream, queue=queue, message=layer_message.model_dump_json())
     await nats_client.close()
 
-def bus_publish(bus_direction: str, payload: dict[str, str]) -> None:
+def _bus_publish(bus_direction: str, bus_message: BusMessage) -> None:
     try:
-        queue_mapping: dict[str, str] = BUSSES_DOWN if bus_direction == BusDirections.DOWN else BUSSES_UP
-        queue: str = queue_mapping.get(payload[LayerKeys.QUEUE], "")
+        queue_mapping: dict[str, str] = BUSSES_DOWN if bus_direction == BusKeys.DOWN else BUSSES_UP
+        queue: str = queue_mapping.get(bus_message.source_queue, "")
         if not queue:
-            print(f"Queue {payload[LayerKeys.QUEUE]} cannot send {bus_direction}!")
+            print(f"Queue {bus_message.source_queue} cannot send {bus_direction}!")
             return
-        payload.pop(LayerKeys.QUEUE, None)
 
-        payload[LayerKeys.SOURCE_DIRECTION] = _inverse(bus_direction)
-        if LayerKeys.ACTION not in payload:
-            payload[LayerKeys.ACTION] = LayerActions.NONE
-        print(f"Sending {payload} to {queue}...")
-
-        BusPublishPayload(**payload)
+        layer_message: LayerMessage = bus_message.layer_message
+        print(f"Sending {layer_message.message_type}: {layer_message.messages} to {queue}...")
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        thread = Thread(target=loop.run_until_complete, args=(_connect_and_publish(queue, json.dumps(payload)),))
+        thread = Thread(target=loop.run_until_complete, args=(_connect_and_publish(queue, layer_message),))
         thread.start()
         thread.join()
     except ValidationError as error:
         raise error
 
-def bus_down(payload: dict[str, str]) -> None:
-    bus_publish(BusDirections.DOWN, payload)
+def bus_down(bus_message: BusMessage) -> None:
+    _bus_publish(BusKeys.DOWN, bus_message)
 
-def bus_up(payload: dict[str, str]) -> None:
-    bus_publish(BusDirections.UP, payload)
+def bus_up(bus_message: BusMessage) -> None:
+    _bus_publish(BusKeys.UP, bus_message)

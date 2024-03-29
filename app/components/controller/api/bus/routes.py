@@ -2,15 +2,16 @@
 ## Third-Party
 from fastapi import APIRouter
 ## Local
-from constants.api import VONE_API_ROUTE
-from constants.layer import LayerKeys, LayerActions
-from constants.queue import BusKeys, BusSources, BusDirections
-from .models import PostBusMessage, VerifyResponse
-from .service import bus_publish
+from constants.api import APIRoutes
+from constants.queue import BusKeys
+from constants.layer import LayerKeys, LayerCommands 
+from components.layer.layer_messages import LayerSubMessage
+from .models import BusMessage
+from .service import bus_down, bus_up
 
 
 # CONSTANTS
-VONE_CHAT_ROUTE: str = f"{VONE_API_ROUTE}/bus"
+VONE_CHAT_ROUTE: str = f"{APIRoutes.VONE}/bus"
 
 
 # API
@@ -21,25 +22,21 @@ router = APIRouter(
 )
 
 
-# BUS
-def _bus_publish(direction: str, payload: dict[str, str]) -> dict[str, str]:
-    bus_publish(bus_direction=direction, payload=payload)
-
-    response: dict[str, str] = {
-        BusKeys.STATUS: "success",
-        BusKeys.ACTION: LayerActions.NONE
-    }
+# ROUTES
+@router.post(f"/{BusKeys.DOWN}", response_model=tuple[LayerSubMessage, ...])
+async def down(bus_message: BusMessage) -> tuple[LayerSubMessage, ...]:
+    # VERIFY PAYLOAD HERE
+    print(f"Bus Message: {bus_message.model_dump_json()}")
+    bus_down(bus_message)
+    response_dict: dict[str, str] = {LayerKeys.HEADING: LayerKeys.ACTIONS, LayerKeys.CONTENT: LayerCommands.NONE}
+    response: tuple[LayerSubMessage, ...] = (LayerSubMessage.model_validate(response_dict),)
     return response
 
-
-# ROUTES
-@router.post("/down", response_model=VerifyResponse)
-async def down(payload: PostBusMessage) -> dict[str, str]:
+@router.post(f"/{BusKeys.UP}", response_model=tuple[LayerSubMessage, ...])
+async def up(bus_message: BusMessage) -> tuple[LayerSubMessage, ...]:
     # VERIFY PAYLOAD HERE
-    return _bus_publish(BusDirections.DOWN, payload.model_dump())
-
-@router.post("/up", response_model=VerifyResponse)
-async def up(payload: PostBusMessage) -> dict[str, str]:
-    # VERIFY PAYLOAD HERE
-    return _bus_publish(BusDirections.UP, payload.model_dump())
+    bus_up(bus_message)
+    response_dict: dict[str, str] = {LayerKeys.HEADING: LayerKeys.ACTIONS, LayerKeys.CONTENT: LayerCommands.NONE}
+    response: tuple[LayerSubMessage, ...] = (LayerSubMessage.model_validate(response_dict),)
+    return response
     

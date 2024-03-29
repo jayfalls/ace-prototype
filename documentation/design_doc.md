@@ -36,7 +36,7 @@
 
 
 # System Design
-![architecture.png](./images/architecture.png)
+![architecture.png](./media/architecture.png)
 
 ## Core
 ## **Model Provider**
@@ -127,6 +127,7 @@ All the physical actions of the machine
         - Code
         - Files
     - Memory
+    - AI Models
 - **Future**
     - API calls
     - Motors
