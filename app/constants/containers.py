@@ -34,20 +34,36 @@ class VolumePaths:
     HOST: str = f"{os.getcwd()}/{STORAGE}"
     HOST_CONTROLLER: str = f"{HOST}/controller"
     HOST_LAYERS: str = f"{HOST}/layers"
+    HOST_MODEL_PROVIDER: str = f"{HOST}/model_provider"
     HOST_OUTPUT: str = f"{HOST}/output"
     CONTAINER: str = f"/home/{ACE.LOWER_NAME}/{STORAGE}"
     CONTROLLER: str = f"{CONTAINER}/controller"
     LAYERS: str = f"{CONTAINER}/layers"
+    MODEL_PROVIDER: str = f"{CONTAINER}/model_provider"
     OUTPUT: str = f"{CONTAINER}/output"
 
 class DevVolumePaths:
     """Enum"""
     STORAGE: str = "./.storage"
-    CONTROLLER_STORAGE: str = f"{STORAGE}/controller"
-    CONTROLLER_SETTINGS: str = f"{CONTROLLER_STORAGE}/settings"
+    CONTROLLER: str = f"{STORAGE}/controller"
+    CONTROLLER_SETTINGS: str = f"{CONTROLLER}/settings"
     LAYERS: str = f"{STORAGE}/layers"
-    OUTPUT_STORAGE: str = f"{STORAGE}/output"
+    MODEL_PROVIDER: str = f"{STORAGE}/model_provider"
+    OUTPUT: str = f"{STORAGE}/output"
 
+REQUIRED_STORAGE_PATHS: tuple[str, ...] = (
+    VolumePaths.HOST_CONTROLLER,
+    VolumePaths.HOST_LAYERS,
+    VolumePaths.HOST_MODEL_PROVIDER,
+    VolumePaths.HOST_OUTPUT
+)
+
+REQUIRED_DEV_STORAGE_PATHS: tuple[str, ...] = (
+    DevVolumePaths.CONTROLLER,
+    DevVolumePaths.LAYERS,
+    DevVolumePaths.MODEL_PROVIDER,
+    DevVolumePaths.OUTPUT
+)
 
 # NETWORK
 ACE_NETWORK_NAME: str = f"{ACE.LOWER_NAME}_network"
@@ -121,6 +137,9 @@ DEPLOYMENT_REPLACE_KEYWORDS: dict[str, str] = {
     "{{ layers_host_path }}": VolumePaths.HOST_LAYERS,
     "{{ layers_container_path }}": VolumePaths.LAYERS,
     "{{ layers_volume }}": f"{ACE.LOWER_NAME}_layers_{_VOLUME}",
+    "{{ model_provider_host_path }}": VolumePaths.HOST_MODEL_PROVIDER,
+    "{{ model_provider_container_path }}": VolumePaths.MODEL_PROVIDER,
+    "{{ model_provider_volume }}": f"{ACE.LOWER_NAME}_model_provider_{_VOLUME}",
     "{{ output_host_path }}": VolumePaths.HOST_OUTPUT,
     "{{ output_container_path }}": VolumePaths.OUTPUT,
     "{{ output_volume }}": f"{ACE.LOWER_NAME}_output_{_VOLUME}"

@@ -2,7 +2,6 @@
 Component constants for the ace_prototype.
 """
 
-
 class ComponentTypes:
     """Enum"""
     CONTROLLER: str = "controller"
