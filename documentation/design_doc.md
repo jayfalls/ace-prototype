@@ -33,6 +33,7 @@
 - [**VictoriaMetrics**](https://github.com/VictoriaMetrics/VictoriaMetrics) for metrics aggregation and storage
 	- [**Fluent-bit**](https://github.com/fluent/fluent-bit) for metrics, log scraping and consolidation
 - [**Guardrails**](https://github.com/guardrails-ai/guardrails) for output validation
+- [**Garnet**](https://github.com/microsoft/garnet) for caching
 
 
 # System Design

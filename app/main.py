@@ -31,7 +31,8 @@ from constants.arguments import (ArgumentNames, ARGUMENTS, ARGUMENTS_HELP,
     BOOL_ARGUMENTS, STRING_ARGUMENTS, ARGUMENTS_SHORT
 )
 from constants.containers import (ACE_IMAGE_NAME, ImageCommands,
-    VolumePaths, ACE_NETWORK_NAME, NetworkCommands,
+    REQUIRED_STORAGE_PATHS, REQUIRED_DEV_STORAGE_PATHS,
+    ACE_NETWORK_NAME, NetworkCommands,
     DeploymentFile, DEPLOYMENT_REPLACE_KEYWORDS, DeploymentCommands
 )
 from constants.generic import ACE
@@ -110,9 +111,8 @@ def assign_arguments() -> ACEArguments:
 
 # SETUP
 def _setup_folders() -> None:
-    required_paths: tuple[str, ...] = (VolumePaths.HOST_CONTROLLER, VolumePaths.HOST_OUTPUT)
+    required_paths: tuple[str, ...] = (*REQUIRED_STORAGE_PATHS, *REQUIRED_DEV_STORAGE_PATHS)
     _ = [os.makedirs(dir_path, exist_ok=True) for dir_path in required_paths]
-    # DO DEV AS WELL
 
 def _setup_user_deployment_file() -> None:
     if os.path.isfile(DeploymentFile.USER_PATH):

@@ -131,7 +131,7 @@ class MonitorConfig(FileSystemEventHandler):
         if event.is_directory:
             return None
         try:
-            self.event_loop.run_until_complete(self.run_broker())
+            self.event_loop.create_task(self.run_broker())
         except Exception as error:
             raise error
 

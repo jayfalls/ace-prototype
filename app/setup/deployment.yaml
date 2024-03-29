@@ -33,6 +33,9 @@ spec:
     name: {{ model_provider_name }}
     ports:
     - containerPort: {{ model_provider_port }}
+    volumeMounts:
+    - mountPath: {{ model_provider_container_path }}
+      name: {{ model_provider_volume }}
   - command:
     - {{ start_command }}
     - {{ telemetry_name }}
@@ -125,6 +128,9 @@ spec:
       path: {{ layers_host_path }}
       type: Directory
     name: {{ layers_volume }}
+  - hostPath:
+      path: {{ model_provider_host_path }}
+      type: Directory
   - hostPath:
       path: {{ output_host_path }}
       type: Directory

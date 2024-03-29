@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://img.shields.io/badge/status-not%20functional-red">
+    <img src="https://img.shields.io/badge/status-semi%20functional-FFA500">
 </p>
 
 <h1 align="center">🧠 ACE Prototype 🧠</h1>
@@ -7,8 +7,7 @@
 
 # Dependencies
 
-- Before running start.py!
-    - Install [Podman](https://podman.io/docs/installation)
+- Install [Podman](https://podman.io/docs/installation) before running
 
 # Usage
 
