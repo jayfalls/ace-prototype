@@ -1,4 +1,7 @@
 # DEPENDENCIES
+## Built-In
+from copy import deepcopy
+from re import L
 ## Local
 from constants.model_provider import LLMKeys, LLMStackTypes, LLM_STACK_TYPES, ModelTypes, Providers
 from .llms import (
@@ -14,7 +17,7 @@ from .rag import (
 # INDIVIDUAL
 def _llm_factory(llm: str, llm_details: dict[str, str]) -> LLM:
     generic_details = LLMDetails(
-        api_key=llm_details[LLMKeys.API_KEY],
+        api_key=llm_details.get(LLMKeys.API_KEY, ""),
         model=llm_details[LLMKeys.MODEL]
     )
     match llm:
@@ -87,26 +90,14 @@ class LLMStack:
         LLMStackTypes.EMBEDDER,
         LLMStackTypes.RERANKER
     )
-    def __init__(self, provider_map: dict[str, dict[str, str]]) -> None:        
-        valid_details_identifiers: frozenset[str] = frozenset({
-            *LLM_STACK_TYPES,
-            LLMKeys.MODEL_TYPE,
-            LLMKeys.PROVIDER_TYPE,
-            LLMKeys.MODEL
-        })
-        for _, provider_details in provider_map.items():
-            provider_map_keys: frozenset[str] = frozenset(provider_details.keys())
-            valid_details: bool = valid_details_identifiers.issuperset(provider_map_keys)
-            if not valid_details:
-                raise ValueError(f"Provider config is missing required details: {valid_details_identifiers - provider_map_keys}")
-
+    def __init__(self, provider_map: dict[str, dict[str, str]]) -> None:  
         llm_map: dict[str, LLM] = {}
         embedder_map: dict[str, Embedder] = {}
         reranker_map: dict[str, Reranker] = {}
         for stack_type in LLM_STACK_TYPES:
             provider_details: dict[str, str] = provider_map[stack_type]
-            _, model_type = provider_details.popitem()
-            _, provider_type = provider_details.popitem()
+            model_type: str = provider_details.pop(LLMKeys.MODEL_TYPE)
+            provider_type: str = provider_details.pop(LLMKeys.PROVIDER_TYPE)
             match model_type:
                 case ModelTypes.LLM:
                     llm_map[stack_type] = _llm_factory(provider_type, provider_details)

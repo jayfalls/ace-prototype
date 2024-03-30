@@ -25,7 +25,7 @@ class LLMKeys:
 
 class ModelProviderPaths:
     """Enum"""
-    CONFIG: str = f"{VolumePaths.HOST_LAYERS}/.config"
+    CONFIG: str = f"{VolumePaths.HOST_MODEL_PROVIDER}/.config"
 
 class LLMStackTypes:
     """Enum"""
@@ -36,7 +36,8 @@ class LLMStackTypes:
     EMBEDDER: str = "embedder"
     RERANKER: str = "reranker"
 
-LLM_STACK_TYPES: frozenset[str] = frozenset(vars(LLMStackTypes).values())
+_llm_stack_types_dict = {k: v for k, v in vars(LLMStackTypes).items() if not k.startswith("__")}
+LLM_STACK_TYPES: frozenset[str] = frozenset(_llm_stack_types_dict.values())
 
 class ModelTypes:
     """Enum"""

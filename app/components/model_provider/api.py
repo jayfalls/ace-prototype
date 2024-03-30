@@ -1,27 +1,24 @@
 # DEPENDENCIES
-## Built-In
-from threading import Thread
 ## Third-Party
 from fastapi import FastAPI
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 ## Local
-from .provider import startup, llm_stack
+from .provider import generate_response
 
 
 # VALIDATION
 class Prompt(BaseModel):
     stack_type: str
-    system: str
+    system_prompt: str
 
 
 # SETUP
 api = FastAPI()
-Thread(target=startup)
 
 
 # ROUTES
 @api.get("/generate", response_class=JSONResponse)
 async def generate(prompt: Prompt) -> dict:
-    response: str = getattr(llm_stack, prompt.stack_type).generate(prompt.system)
+    response: str = generate_response(stack_type=prompt.stack_type, system_prompt=prompt.system_prompt)
     return {"response": response}

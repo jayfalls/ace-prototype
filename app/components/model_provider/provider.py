@@ -105,23 +105,30 @@ def _set_current_mapping(new_mapping: str) -> None:
         toml.dump(config, config_file)
 
 def _setup() -> None:
+    global llm_stack
+    
     if os.path.isfile(ModelProviderPaths.CONFIG):
+        print("Config file exists. Reading...", DebugLevels.INFO)
         with open(ModelProviderPaths.CONFIG, "r", encoding="utf-8") as config_file:
             existing_config: TOMLConfig = toml.load(config_file)
             base_information: dict[str, Any] = existing_config.get(LLMKeys.BASE_INFORMATION, {})
             current_mapping: str = base_information.get(LLMKeys.CURRENT_MAPPING, GenericKeys.NONE)
             if current_mapping in existing_config.keys():
+                print(f"{current_mapping} mapping exists. Loading...", DebugLevels.INFO)
+                llm_stack = LLMStack(provider_map=existing_config[current_mapping])
                 return
             _set_current_mapping(new_mapping=GenericKeys.DEFAULT)
         return
-    global llm_stack
-    llm_stack = LLMStack(provider_map=BASE_CONFIG[GenericKeys.DEFAULT])
+    print("Config file does not exist. Creating...", DebugLevels.INFO)
     with open(ModelProviderPaths.CONFIG, "w", encoding="utf-8") as config_file:
         toml.dump(BASE_CONFIG, config_file)
+    llm_stack = LLMStack(provider_map=BASE_CONFIG[GenericKeys.DEFAULT])
 
 
 # CONFIG LISTENER
 class MonitorConfig(FileSystemEventHandler):
+    current_mapping: str = ""
+
     def _get_config(self) -> TOMLConfig:
         with open(ModelProviderPaths.CONFIG, "r", encoding="utf-8") as config_file:
             config: TOMLConfig = toml.load(config_file)
@@ -150,9 +157,12 @@ class MonitorConfig(FileSystemEventHandler):
         if event.is_directory:
             return None
         try:
+            print("Config file modified. Checking if valid...", DebugLevels.INFO)
             if not self._valid_config_change():
+                print("Invalid config change. Restoring...", DebugLevels.INFO)
                 return
 
+            print("Valid config change. Reloading Model Provider...", DebugLevels.INFO)
             global llm_stack
             config: TOMLConfig = self._get_config()
             current_mapping: str = config[LLMKeys.BASE_INFORMATION][LLMKeys.CURRENT_MAPPING]
@@ -162,10 +172,11 @@ class MonitorConfig(FileSystemEventHandler):
             raise error
 
 def startup() -> None:
+    print("Setting up LLM stack...")
     _setup()
     event_handler = MonitorConfig()
     observer = Observer()
-    observer.schedule(event_handler=event_handler, path=f"{VolumePaths.MODEL_PROVIDER}", recursive=False)
+    observer.schedule(event_handler=event_handler, path=f"{VolumePaths.HOST_MODEL_PROVIDER}", recursive=False)
     observer.start()
     print("Listening for config changes...")
     try:
@@ -178,3 +189,8 @@ def startup() -> None:
     finally:
         observer.stop()
         observer.join()
+
+
+# MAIN
+def generate_response(stack_type: str, system_prompt: str) -> str:
+    return getattr(llm_stack, stack_type).generate(system_prompt)
