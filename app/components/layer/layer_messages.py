@@ -14,11 +14,18 @@ from constants.layer import LayerKeys
 
 # TYPES
 class LayerSubMessage(BaseModel):
+    """
+    The messages of a single layer message
+
+    Attributes:
+        heading (str): The purpose of the message
+        content (tuple[str, ...]): The message
+    """
     heading: str
     content: tuple[str, ...]
 
     @validator("content", pre=True)
-    def convert_content_to_tuple(cls, content: Any) -> tuple[str, ...]:
+    def _convert_content_to_tuple(cls, content: Any) -> tuple[str, ...]:
         if isinstance(content, str):
             return (content,)
         elif isinstance(content, list):
@@ -29,11 +36,18 @@ class LayerSubMessage(BaseModel):
             raise ValueError("Invalid type for content field")
 
 class LayerMessage(BaseModel):
+    """
+    A single message from a layer
+
+    Attributes:
+        message_type (str): The type of message, corresponding to GUIDANCE, DATA, etc...
+        messages (tuple[LayerSubMessage, ...]): The messages of that type
+    """
     message_type: str
     messages: tuple[LayerSubMessage, ...]
 
     @validator("messages", pre=True)
-    def convert_dict_messages_to_tuple_of_sub_messages(cls, messages: Union[dict[str, Union[str, list[str]]], tuple[LayerSubMessage, ...]]) -> tuple[LayerSubMessage, ...]:
+    def _convert_dict_messages_to_tuple_of_sub_messages(cls, messages: Union[dict[str, Union[str, list[str]]], tuple[LayerSubMessage, ...]]) -> tuple[LayerSubMessage, ...]:
         if isinstance(messages, tuple):
             for message in messages:
                 if isinstance(message, LayerSubMessage):
@@ -49,6 +63,7 @@ class LayerMessage(BaseModel):
         return ()
 
 LayerMessages = tuple[LayerMessage, ...]
+"""A tuple of LayerMessage objects"""
 
 
 # INTERFACE

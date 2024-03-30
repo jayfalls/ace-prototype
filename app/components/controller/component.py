@@ -8,7 +8,7 @@ import uvicorn
 ## Local
 from .api import run
 from constants.api import APIPaths
-from constants.containers import DevVolumePaths
+from constants.containers import DevVolumePaths, ComponentPorts
 
 
 # SETUP
@@ -16,7 +16,7 @@ def setup(local_mode: bool) -> None:
     print("\nSetting Up Controller Files...")
     settings_path: str = APIPaths.SETTINGS
     if local_mode:
-        dirs: tuple[str, ...] = (DevVolumePaths.CONTROLLER_STORAGE, DevVolumePaths.OUTPUT_STORAGE)
+        dirs: tuple[str, ...] = (DevVolumePaths.CONTROLLER, DevVolumePaths.OUTPUT)
         _ = [os.makedirs(dirs, exist_ok=True) for dirs in dirs]
         settings_path = DevVolumePaths.CONTROLLER_SETTINGS
     if not os.path.exists(settings_path):
@@ -35,4 +35,4 @@ def component(component_type: str) -> None:
     local_mode: bool = False
     setup(local_mode)
     print("\nStarting Server Client...")
-    uvicorn.run(run.app, host="0.0.0.0", port=2349)
+    uvicorn.run(run.app, host="0.0.0.0", port=int(ComponentPorts.CONTROLLER))

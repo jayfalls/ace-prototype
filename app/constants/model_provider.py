@@ -4,17 +4,38 @@ Model Provider constants for the ace_prototype.
 
 class LLMKeys:
     """Enum"""
+    LLM: str = "llm"
+    EMBEDDER: str = "embedder"
+    RERANKER: str = "reranker"
+    MODEL_TYPE: str = "model_type"
+    PROVIDER_TYPE: str = "provider_type"
     API_KEY: str = "api_key"
     MODEL: str = "model"
     CONTEXT: str = "context"
     TEMPERATURE: str = "temperature"
+    RATE_LIMIT: str = "rate_limit"
+    LOW_VRAM: str = "low_vram"
 
+class LLMStackTypes:
+    GENERALIST: str = "generalist"
+    EFFICIENT: str = "efficient"
+    CODER: str = "coder"
+    FUNCTION_CALLER: str = "function_caller"
+    EMBEDDER: str = "embedder"
+    RERANKER: str = "reranker"
+
+LLM_STACK_TYPES: frozenset[str] = frozenset(vars(LLMStackTypes).values())
+
+# PROVIDERS
 class Providers:
     """Enum"""
     CLAUDE: str = "claude"
     GROQ: str = "groq"
     OLLAMA: str = "ollama"
     OPENAI: str = "openai"
+    FAST_EMBED: str = "fast_embed"
+    RAGATOUILLE: str = "ragatouille"
+    CROSS_ENCODER: str = "cross_encoder"
 
 class ClaudeModels:
     """Enum"""
@@ -30,9 +51,25 @@ class OllamaModels:
     """Enum"""
     ALPHAMONARCH: str = "alphamonarch"
     PHI_TWO_ORANGE: str = "phi2-orange"
+    STABLELM_TWO_ZEPHYR: str = "stablelm2:1.6b-zephyr-q6_K"
+    DEEPSEEK_CODER: str = "deepseek-coder:6.7b-instruct-q3_K_L"
+    DEEPSEEK_CODER_SMALL: str = "deepseek-coder:1.3b-instruct-q6_K"
+
 
 class OpenAIModels:
     """Enum"""
     FOUR: str = "gpt-4"
     FOUR_TURBO: str = "gpt-4-turbo-preview"
     THREE_POINT_FIVE: str = "gpt-3.5-turbo"
+
+class RagatouilleModels:
+    """Enum"""
+    MXBAI_COLBERT: str = "mixedbread-ai/mxbai-colbert-large-v1"
+
+class FastEmbedModels:
+    """Enum"""
+    MXBAI_EMBED: str = "mixedbread-ai/mxbai-embed-large-v1"
+
+class CrossEncoderModels:
+    """Enum"""
+    MXBAI_RERANKER: str = "mixedbread-ai/mxbai-rerank-large-v1"

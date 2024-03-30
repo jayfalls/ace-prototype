@@ -16,48 +16,68 @@ from openai.types.chat import ChatCompletionChunk as OpenAIChatCompletionChunk
 from pydantic import BaseModel
 ## Local
 from constants.generic import GenericKeys
-from constants.model_provider import (
-    LLMKeys, 
-    Providers, ClaudeModels, GroqModels, OllamaModels, OpenAIModels
-)
+from constants.model_provider import LLMKeys
 
 
 # CONSTANTS
-_ASSISTANT_BEGIN: str = '[internal]\nreasoning = """' # Must match the start of the response schemas
+_ASSISTANT_BEGIN: str = '[internal]\nreasoning = """'
+"""Must match the start of the response schemas"""
 
 
-# PROVIDERS
-class ProviderDetails(BaseModel):
+# GENERIC
+class LLMDetails(BaseModel):
+    """Data"""
     api_key: str
     model: str
     context: int = 4096
     temperature: float = 0.2
+    rate_limit: int = 20 # Seconds
 
-GenericProviderDetails = TypeVar("GenericProviderDetails", bound=ProviderDetails)
+GenericLLMDetails = TypeVar("GenericLLMDetails", bound=LLMDetails)
+"""Hint to use a LLMDetails or a subclass of LLMDetails"""
 
-class Provider(ABC, Generic[GenericProviderDetails]):
+class LLM(ABC, Generic[GenericLLMDetails]):
+    """
+    Abstract Base Class for Language Model Managers
+
+    Attributes:
+        api_key (str): API key for the model provider
+        model (str): Model name
+        context (int): Number of tokens to use for context
+        temperature (float): Temperature for the model
+        rate_limit (int): Minimum time between requests in seconds
+    
+    Methods:
+        generate (system_prompt: str) -> str: Generate a response to the system prompt
+    """
     __slots__: tuple[str, ...] = (
         LLMKeys.API_KEY,
         LLMKeys.MODEL,
         LLMKeys.CONTEXT,
-        LLMKeys.TEMPERATURE
+        LLMKeys.TEMPERATURE,
+        LLMKeys.RATE_LIMIT
     )
-    def __init__(self, provider_details: GenericProviderDetails) -> None:
-        self.api_key: str = provider_details.api_key
-        self.model: str = provider_details.model
-        self.context: int = provider_details.context
-        self.temperature: float = provider_details.temperature
-        self._custom_init(provider_details)
+    def __init__(self, llm_details: GenericLLMDetails) -> None:
+        self.api_key: str = llm_details.api_key
+        self.model: str = llm_details.model
+        self.context: int = llm_details.context
+        self.temperature: float = llm_details.temperature
+        self.rate_limit: int = llm_details.rate_limit
+        self._custom_init(llm_details)
     
-    def _custom_init(self, provider_details: GenericProviderDetails) -> None:
+    def _custom_init(self, llm_details: GenericLLMDetails) -> None:
         pass
 
     @abstractmethod
     def generate(self, system_prompt: str) -> str:
         raise NotImplementedError
 
-## Claude
-class ClaudeProvider(Provider):
+
+# CLAUDE
+class ClaudeLLM(LLM):
+    """
+    Language Model Manager for Claude
+    """
     def generate(self, system_prompt: str) -> str:
         client = Anthropic(api_key=self.api_key)
         stream: AnthropicStream[MessageStreamEvent] = client.messages.create(
@@ -78,8 +98,12 @@ class ClaudeProvider(Provider):
             output.append(event.type)
         return "".join(output)
 
-## Groq
-class GroqProvider(Provider):
+
+# GROQ
+class GroqLLM(LLM):
+    """
+    Language Model Manager for Groq
+    """
     def generate(self, system_prompt: str) -> str:
         client = Groq(api_key=self.api_key)
         chat_completion: GroqChatCompletion = client.chat.completions.create(
@@ -95,18 +119,26 @@ class GroqProvider(Provider):
         )
         return chat_completion.choices[0].message.content
 
-## Ollama
-class OllamaDetails(ProviderDetails):
+
+# OLLAMA
+class OllamaDetails(LLMDetails):
+    """data"""
     api_key: str = GenericKeys.NONE
     low_vram: bool = False
 
-class OllamaProvider(Provider):
-    def _custom_init(self, provider_details: OllamaDetails) -> None:
+class OllamaLLM(LLM):
+    """
+    Language Model Manager for Ollama
+
+    Extra Attributes:
+        low_vram (bool): Whether to run in low VRAM mode
+    """
+    def _custom_init(self, llm_details: OllamaDetails) -> None:
         self.__slots__ = (
             *self.__slots__,
-            "low_vram"
+            LLMKeys.LOW_VRAM
         )
-        self.low_vram: bool = provider_details.low_vram
+        self.low_vram: bool = llm_details.low_vram
 
     def generate(self, system_prompt: str) -> str:
         stream: Union[Mapping[str, Any], Iterator[Mapping[str, Any]]] = ollama.chat(
@@ -136,8 +168,12 @@ class OllamaProvider(Provider):
             output.append(stream["message"]["content"])
         return "".join(output)
 
-## OpenAI
-class OpenAIProvider(Provider):
+
+# OPENAI
+class OpenAILLM(LLM):
+    """
+    Language Model Manager for OpenAI
+    """
     def generate(self, system_prompt: str) -> str:
         client = OpenAI(api_key=self.api_key)
         stream: OpenAIStream[OpenAIChatCompletionChunk] = client.chat.completions.create(
@@ -160,42 +196,3 @@ class OpenAIProvider(Provider):
         for chunk in stream:
             output.append(chunk.choices[0].delta.content or "")
         return "".join(output)
-
-
-# FACTORY
-def get_llm_provider(provider: str, provider_details: ProviderDetails) -> Provider:
-    match provider:
-        case Providers.CLAUDE:
-            if not isinstance(provider_details, ProviderDetails):
-                raise TypeError(f"Provider Details must be of type ProviderDetails for {provider} provider")
-            provider_details = ProviderDetails(
-                api_key="TEST",
-                model=ClaudeModels.HAIKU
-            )
-            return ClaudeProvider(provider_details)
-        case Providers.GROQ:
-            if not isinstance(provider_details, ProviderDetails):
-                raise TypeError(f"Provider Details must be of type ProviderDetails for {provider} provider")
-            provider_details = ProviderDetails(
-                api_key="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",
-                model=GroqModels.MIXTRAL
-            )
-            return GroqProvider(provider_details)
-        case Providers.OLLAMA:
-            if not isinstance(provider_details, OllamaDetails):
-                raise TypeError(f"Provider Details must be of type OllamaDetails for {provider} provider")
-            provider_details = OllamaDetails(
-                model=OllamaModels.ALPHAMONARCH,
-                low_vram=True
-            )
-            return OllamaProvider(provider_details)
-        case Providers.OPENAI:
-            if not isinstance(provider_details, ProviderDetails):
-                raise TypeError(f"Provider Details must be of type ProviderDetails for {provider} provider")
-            provider_details = ProviderDetails(
-                api_key="TEST",
-                model=OpenAIModels.THREE_POINT_FIVE
-            )
-            return OpenAIProvider(provider_details)
-        case _:
-            raise NotImplementedError(f"{provider} is not implemented...")

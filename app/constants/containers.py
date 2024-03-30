@@ -91,7 +91,7 @@ class ComponentPorts:
     """Enum"""
     CONTROLLER: str = "2349"
     QUEUE: str = "4222"
-    MODEL_PROVIDER_PORT: str = "4223"
+    MODEL_PROVIDER: str = "4223"
     TELEMETRY: str = "4931"
     ACTIONS: str = "4932"
     MEMORY: str = "4933"
@@ -112,7 +112,7 @@ DEPLOYMENT_REPLACE_KEYWORDS: dict[str, str] = {
     "{{ queue_name }}": ComponentTypes.QUEUE,
     "{{ queue_port }}": ComponentPorts.QUEUE,
     "{{ model_provider_name }}": ComponentTypes.MODEL_PROVIDER,
-    "{{ model_provider_port }}": ComponentPorts.MODEL_PROVIDER_PORT,
+    "{{ model_provider_port }}": ComponentPorts.MODEL_PROVIDER,
     "{{ telemetry_name }}": ComponentTypes.TELEMETRY,
     "{{ telemetry_port }}": ComponentPorts.TELEMETRY,
     "{{ actions_name }}": ComponentTypes.ACTIONS,
