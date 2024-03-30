@@ -76,7 +76,7 @@ The Cognitive Control Layer is responsible for dynamic task switching and select
     based on project plans from the Executive Function Layer.
     """
     TELEMETRY: frozenset[str] = frozenset(
-        {   
+        {
             Telemetry.SYSTEM_METRICS,
             Telemetry.SYSTEM_PROCESSES,
             Telemetry.LOCATION,
