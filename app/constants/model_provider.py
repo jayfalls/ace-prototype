@@ -2,13 +2,20 @@
 Model Provider constants for the ace_prototype.
 """
 
+# DEPENDENCIES
+## Local
+from .containers import VolumePaths
+
 class LLMKeys:
     """Enum"""
-    LLM: str = "llm"
-    EMBEDDER: str = "embedder"
-    RERANKER: str = "reranker"
     MODEL_TYPE: str = "model_type"
     PROVIDER_TYPE: str = "provider_type"
+
+    # Config
+    BASE_INFORMATION: str = "base_information"
+    CURRENT_MAPPING: str = "current_mapping"
+
+    # Provider Details
     API_KEY: str = "api_key"
     MODEL: str = "model"
     CONTEXT: str = "context"
@@ -16,7 +23,12 @@ class LLMKeys:
     RATE_LIMIT: str = "rate_limit"
     LOW_VRAM: str = "low_vram"
 
+class ModelProviderPaths:
+    """Enum"""
+    CONFIG: str = f"{VolumePaths.HOST_LAYERS}/.config"
+
 class LLMStackTypes:
+    """Enum"""
     GENERALIST: str = "generalist"
     EFFICIENT: str = "efficient"
     CODER: str = "coder"
@@ -25,6 +37,13 @@ class LLMStackTypes:
     RERANKER: str = "reranker"
 
 LLM_STACK_TYPES: frozenset[str] = frozenset(vars(LLMStackTypes).values())
+
+class ModelTypes:
+    """Enum"""
+    LLM: str = "llm"
+    EMBEDDER: str = "embedder"
+    RERANKER: str = "reranker"
+
 
 # PROVIDERS
 class Providers:
@@ -54,7 +73,7 @@ class OllamaModels:
     STABLELM_TWO_ZEPHYR: str = "stablelm2:1.6b-zephyr-q6_K"
     DEEPSEEK_CODER: str = "deepseek-coder:6.7b-instruct-q3_K_L"
     DEEPSEEK_CODER_SMALL: str = "deepseek-coder:1.3b-instruct-q6_K"
-
+    GORILLA_OPENFUNCTIONS: str = "adrienbrault/gorilla-openfunctions-v2:Q3_K_L"
 
 class OpenAIModels:
     """Enum"""

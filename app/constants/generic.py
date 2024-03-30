@@ -27,7 +27,8 @@ class GenericKeys:
     NONE: str = "none"
     EMPTY: str = ""
     EMPTY_PATH: str = "./empty"
+    DEFAULT: str = "default"
 
 
 # TYPES
-Config = dict[str, dict[str, Any]]
+TOMLConfig = dict[str, dict[str, Any]]

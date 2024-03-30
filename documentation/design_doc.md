@@ -30,11 +30,11 @@
 	- [**Phi-2-Orange**](https://huggingface.co/rhysjones/phi-2-orange) as the base model
 - [**LanceDB**](https://github.com/lancedb/lancedb) for memory
 	- [**SPR**](https://github.com/daveshap/SparsePrimingRepresentations) for compression
+    - [**FastEmbed**](https://github.com/qdrant/fastembed) for embedding
 - [**VictoriaMetrics**](https://github.com/VictoriaMetrics/VictoriaMetrics) for metrics aggregation and storage
 	- [**Fluent-bit**](https://github.com/fluent/fluent-bit) for metrics, log scraping and consolidation
 - [**Guardrails**](https://github.com/guardrails-ai/guardrails) for output validation
 - [**Garnet**](https://github.com/microsoft/garnet) for caching
-
 
 # System Design
 ![architecture.png](./media/architecture.png)
