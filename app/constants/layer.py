@@ -4,7 +4,6 @@ Layer constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from dataclasses import dataclass
 from .containers import VolumePaths
 from .components import ComponentTypes
 from .generic import GenericKeys
