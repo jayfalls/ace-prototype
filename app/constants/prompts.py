@@ -5,8 +5,8 @@ Prompt constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from helpers import BaseEnum
 from .generic import Paths
+from .default import BaseEnum
 
 
 class PromptKeys(BaseEnum):

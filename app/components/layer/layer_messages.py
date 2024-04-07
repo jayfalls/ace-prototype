@@ -47,23 +47,28 @@ class LayerMessage(BaseModel):
     messages: tuple[LayerSubMessage, ...]
 
     @validator("messages", pre=True)
-    def _convert_dict_messages_to_tuple_of_sub_messages(cls, messages: Union[dict[str, Union[str, list[str]]], tuple[LayerSubMessage, ...]]) -> tuple[LayerSubMessage, ...]:
+    def _convert_dict_messages_to_tuple_of_sub_messages(
+        cls, 
+        messages: Union[list[dict[str, Union[str, list[str]]]], tuple[LayerSubMessage, ...]]
+    ) -> tuple[LayerSubMessage, ...]:
         if isinstance(messages, tuple):
             for message in messages:
                 if isinstance(message, LayerSubMessage):
                     return messages
         
-        if isinstance(messages, dict):
+        if isinstance(messages, list):
             sub_messages: list[LayerSubMessage] = []
-            for heading, content in messages.items():
-                sub_message_pre: dict = {LayerKeys.HEADING: heading, LayerKeys.CONTENT: content}
+            for message in messages:
+                sub_message_pre: dict = {
+                    LayerKeys.HEADING: message[LayerKeys.HEADING],
+                    LayerKeys.CONTENT: message[LayerKeys.CONTENT]
+                }
                 sub_messages.append(LayerSubMessage.model_validate(sub_message_pre))
             return tuple(sub_messages)
-        
+
         return ()
 
 LayerMessages = tuple[LayerMessage, ...]
-"""A tuple of LayerMessage objects"""
 
 
 # INTERFACE

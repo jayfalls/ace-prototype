@@ -1,3 +1,14 @@
+"""
+This module defines the Layer class and its subclasses for representing different layers in a system.
+
+The Layer class encapsulates attributes and methods for managing layer-specific data, guidance, prompts, 
+and communication with other components via a message bus. Subclasses can override certain methods
+to customize behavior for specific layer types.
+
+The module also includes helper functions for merging messages, sending requests to other components,
+and instantiating Layer objects using a factory function.
+"""
+
 # DEPENDENCIES
 ## Built-In
 import asyncio
@@ -13,11 +24,13 @@ from constants.generic import GenericKeys
 from constants.layer import (
     LayerKeys, Layers, LayerCommands, LayerPaths
 )
+from constants.model_provider import LLMStackTypes
 from constants.prompts import PromptFilePaths
 from constants.queue import BusKeys
 from constants.settings import DebugLevels
-from components.controller.api.bus.models import BusMessage
-from helpers import debug_print, post_api
+from components.controller.api.bus.models import BusMessage, BusResponse
+from components.model_provider import ModelPrompt, ModelResponse
+from helpers import debug_print, get_api, post_api
 from .injections import InjectionMap, BASE_PROMPT_MAP, ASPIRATIONAL_PROMPT_MAP, OUTPUT_RESPONSE_MAP
 from .layer_messages import LayerMessage, LayerMessageLoader, LayerSubMessage
 from .presets import LayerPreset, LAYER_PRESET_MAP
@@ -39,6 +52,8 @@ def _merge_messages(new_messages: tuple[LayerSubMessage, ...], old_messages: tup
                 heading=new_message.heading,
                 content=(*original_content, *new_message.content),
             ))
+            continue
+        merged_messages.append(new_message)
     for index, old_heading in enumerate(old_headings):
         if old_heading in matched_headings:
             continue
@@ -47,10 +62,17 @@ def _merge_messages(new_messages: tuple[LayerSubMessage, ...], old_messages: tup
 
 
 # COMMUNICATION
-async def _try_send(direction: str, source_queue: str, layer_message: LayerMessage) -> None:
+async def _try_send(direction: str, source_queue: str, layer_message: LayerMessage) -> BusResponse:
     bus_message = BusMessage(source_queue=source_queue, layer_message=layer_message)
-    f"http://127.0.0.1:{ComponentPorts.CONTROLLER}/v1/bus/{direction}"
-    await post_api(api_port=ComponentPorts.CONTROLLER, endpoint=direction, payload=bus_message)
+    response: str = await post_api(api_port=ComponentPorts.CONTROLLER, endpoint=f"bus/{direction}", payload=bus_message)
+    response_validated = BusResponse.model_validate_json(response)
+    return response_validated
+
+async def _model_response(system_prompt: str) -> ModelResponse:
+    model_request = ModelPrompt(stack_type=LLMStackTypes.GENERALIST, system_prompt=system_prompt)
+    response: str = await get_api(api_port=ComponentPorts.MODEL_PROVIDER, endpoint="generate", payload=model_request)
+    response_validated = ModelResponse.model_validate_json(response)
+    return response_validated
 
 
 # BASE LAYER
@@ -66,12 +88,18 @@ BASE_PROMPT_MAPS: dict[str, InjectionMap] = {
 class Layer:
     """
     Attributes:
-        layer_type (str): The type of the layer.
-        base_prompt (str): The base system prompt for this layer.
-        guidance (list[str]): The guidance for this layer.
-        data (list[str]): The data for this layer.
-        telemetry (frozenset[str]): The telemetry inputs this layer has access to.
-        access (frozenset[str]): The actions this layer has access to.
+        name (str): The name of the layer
+        layer_type (str): The type of the layer
+        base_prompt (str): The base system prompt for this layer
+        guidance (tuple[LayerSubMessage]): The guidance for this layer
+        data (tuple[LayerSubMessage]): The data for this layer
+        telemetry (frozenset[str]): The telemetry inputs this layer has access to
+        first_run (bool): Whether this layer has been run for the first time
+        processing (bool): Whether this layer is currently processing
+        max_retries (int): The maximum number of model_provider retries this layer can do
+        default_guidance (tuple[LayerSubMessage]): The default guidance for this layer
+        has_data (bool): Whether this layer has data
+        default_data (tuple[LayerSubMessage]): The default data for this layer
     """
     __slots__: list[str] = [
         LayerKeys.NAME,
@@ -82,6 +110,7 @@ class Layer:
         LayerKeys.TELEMETRY,
         LayerKeys.FIRST_RUN,
         LayerKeys.PROCESSING,
+        LayerKeys.MAX_RETRIES,
         LayerKeys.DEFAULT_GUIDANCE,
         LayerKeys.HAS_DATA,
         LayerKeys.DEFAULT_DATA
@@ -95,6 +124,7 @@ class Layer:
         self.telemetry: frozenset[str] = preset.TELEMETRY
         self.first_run: bool = True
         self.processing: bool = False
+        self.max_retries: int = 3
         self.default_guidance: tuple[LayerSubMessage, ...] = ()
         self.has_data: bool = True
         self.default_data: tuple[LayerSubMessage, ...] = ()
@@ -104,23 +134,8 @@ class Layer:
     
     def _custom_init(self) -> None:
         pass
-
-    @final
-    def _build_base_prompt(self) -> str:
-        with open(PromptFilePaths.LAYER, "r", encoding="utf-8") as base_prompt_file:
-            base_prompt_text: str = base_prompt_file.read()
-        base_prompt: str = build_prompt(
-            text_with_variables=base_prompt_text,
-            injection_map=BASE_PROMPT_MAPS[self.layer_type],
-            variable_map=self._get_variable_map()
-        )
-        debug_print(f"{self.layer_type} Base Prompt: {base_prompt}", DebugLevels.INFO)
-        return base_prompt
-
-    @final
-    def _get_variable_map(self) -> VariableMap:
-        return {slot: getattr(self, slot) for slot in self.__slots__}
     
+    # Layer Controls
     @final
     async def _process_controller_message(self, layer_message: LayerMessage) -> None:
         actions: tuple[str, ...] = tuple([sub_message.heading for sub_message in layer_message.messages])
@@ -135,6 +150,24 @@ class Layer:
                 case _:
                     print(f"{action} Does not match any known layer actions!")
 
+    # System Prompt
+    @final
+    def _get_variable_map(self) -> VariableMap:
+        return {slot: getattr(self, slot) for slot in self.__slots__}
+
+    @final
+    def _build_base_prompt(self) -> str:
+        with open(PromptFilePaths.LAYER, "r", encoding="utf-8") as base_prompt_file:
+            base_prompt_text: str = base_prompt_file.read()
+        base_prompt: str = build_prompt(
+            text_with_variables=base_prompt_text,
+            injection_map=BASE_PROMPT_MAPS[self.layer_type],
+            variable_map=self._get_variable_map()
+        )
+        debug_print(f"{self.layer_type} Base Prompt: {base_prompt}", DebugLevels.INFO)
+        return base_prompt
+
+    # Layer Messages
     @final
     def _process_layer_message(self) -> None:
         print(f"Checking if should process {self.layer_type}...")
@@ -159,32 +192,26 @@ class Layer:
             is_output_valid: bool = False
             formatted_response: dict[str, dict[str, Union[str, list[str]]]] = {}
             print("Getting output from model...")
-            while not is_output_valid:
-                # REQUEST MODEL WITH output_response_prompt HERE
-                response: str = '''
-                    [internal]
-                    reasoning = "Given the high CPU usage and rising temperature, it's crucial to prioritize cooling and efficiency. The suicidal tweets indicate a need for proactive mental health support. The installed packages may not be relevant to our mission, so they won't be considered in our objectives."
-
-                    [southbound]
-                    objectives = [
-                    "Implement power-saving measures to reduce CPU usage and cool the system.",
-                    "Establish mental health support and monitoring for staff."
-                    ]
-                    strategies = [
-                    "Optimize code and tasks to reduce CPU-intensive operations.",
-                    "Initiate staff support programs, including counseling and wellness checks."
-                    ]
-
-                    [northbound]
-                    world_state = "The system is under high load, and a staff member is in distress. Cooling measures and power optimization are in place. Mental health support is being arranged for the staff member."
-                    abstract_objectives = "Ensure system stability, support staff well-being."
-                '''
+            retries: int = 0
+            while not is_output_valid and retries < self.max_retries:
+                response: ModelResponse = asyncio.run(_model_response(system_prompt=output_response_prompt))
+                response_text: str = response.response
+                if response_text.startswith("```toml"):
+                    response_text = response_text.replace("```toml", "")
                 try:
-                    formatted_response = toml.loads(response)
+                    formatted_response = toml.loads(response_text)
                     is_output_valid = True
                 except Exception as error:
                     debug_print(f"Error formatting llm response from {self.layer_type}: {error}", DebugLevels.WARNING)
+                finally:
+                    retries += 1
+                print(f"Retries: {retries}")
+            if not is_output_valid:
+                print(f"Failed to get output from {self.layer_type} after {self.max_retries} retries!")
+                self.processing = False
+                return
             print("Received Output...")
+            print(f"\nModel Response:\n{formatted_response}\n", DebugLevels.INFO)
             # LOG internal.reasoning HERE
             layer_message_loader = LayerMessageLoader(formatted_response)
             southbound: Optional[LayerMessage] = layer_message_loader.guidance
@@ -204,7 +231,8 @@ class Layer:
             self.processing = False
             return
         print(f"{self.layer_type} waiting to have enough guidance and data to process...")
-    
+
+    # Queue Processing
     @final
     async def get_message_from_bus(self, message: NatsMsg) -> None:
         try:

@@ -17,10 +17,12 @@ from pydantic import BaseModel
 ## Local
 from constants.generic import GenericKeys
 from constants.model_provider import LLMKeys
+from constants.settings import DebugLevels
+from helpers import debug_print
 
 
 # CONSTANTS
-_ASSISTANT_BEGIN: str = '[internal]\nreasoning = """'
+_ASSISTANT_BEGIN: str = '```toml\n[internal]\nreasoning = """'
 """Must match the start of the response schemas"""
 
 
@@ -93,7 +95,7 @@ class ClaudeLLM(LLM):
             temperature=self.temperature,
             stream=True,
         )
-        output: list[str] = []
+        output: list[str] = [_ASSISTANT_BEGIN]
         for event in stream:
             output.append(event.type)
         return "".join(output)
@@ -160,12 +162,16 @@ class OllamaLLM(LLM):
             ),
             stream=True,
         )
-        output: list[str] = []
+        output: list[str] = [_ASSISTANT_BEGIN]
         if isinstance(stream, Iterator):
             for chunk in stream:
                 output.append(chunk["message"]["content"])
+                debug_print(chunk["message"]["content"], DebugLevels.INFO, end="")
+                print(chunk["message"]["content"], end="")
         else:
             output.append(stream["message"]["content"])
+        final_output: str = "".join(output)
+        print(f"Final Output: {final_output}")
         return "".join(output)
 
 
@@ -192,7 +198,7 @@ class OpenAILLM(LLM):
             temperature=self.temperature,
             stream=True,
         )
-        output: list[str] = []
+        output: list[str] = [_ASSISTANT_BEGIN]
         for chunk in stream:
             output.append(chunk.choices[0].delta.content or "")
         return "".join(output)

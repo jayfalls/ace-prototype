@@ -1,1 +1,1 @@
-from .component import component
+from .component import component as _actions

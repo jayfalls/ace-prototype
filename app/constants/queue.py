@@ -5,8 +5,8 @@ Queue constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from helpers import BaseEnum
 from .components import ComponentTypes as Queues
+from .default import BaseEnum
 
 
 class QueueCommands(BaseEnum):

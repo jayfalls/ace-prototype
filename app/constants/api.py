@@ -7,8 +7,8 @@ API constants for the ace_prototype.
 ## Third-Party
 from fastapi.templating import Jinja2Templates
 ## Local
-from helpers import BaseEnum
 from .containers import VolumePaths
+from .default import BaseEnum
 from .components import ComponentTypes
 from .generic import Paths
 

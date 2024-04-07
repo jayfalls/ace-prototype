@@ -1,6 +1,8 @@
 # DEPENDENCIES
 ## Local
 from constants.generic import GenericKeys
+from helpers import debug_print
+from constants.settings import DebugLevels
 from ..layer_messages import LayerSubMessage
 
 
@@ -16,6 +18,7 @@ def build_text_from_sub_layer_messages(sub_messages: tuple[LayerSubMessage, ...]
     Returns:
         str: The concatenated text block generated from the messages.
     """
+    debug_print(f"Building text from {sub_messages}...", DebugLevels.INFO)
     text: str = ""
     for sub_message in sub_messages:
         text += f"{heading_identifier} {sub_message.heading.title()}\n"

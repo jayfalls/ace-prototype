@@ -12,11 +12,11 @@ from .queue import broker
 # STARTUP
 from .controller import component as _controller
 from .queue.component import component as _queue
-from .telemetry import component as _telemetry
-from .actions import component as _actions
-from .memory import component as _memory
-from .model_provider import component as _model_provider
-from .layer import component as _layer
+from .telemetry import _telemetry
+from .actions import _actions
+from .memory import _memory
+from .model_provider import _model_provider
+from .layer import _layer
 
 COMPONENT_MAP: dict[str, Callable[[str], None]] = {
     ComponentTypes.CONTROLLER: _controller,

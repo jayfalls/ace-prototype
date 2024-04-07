@@ -1,48 +1,18 @@
 # DEPENDENCIES
 ## Built-in
-from abc import ABC
 import subprocess
 from subprocess import Popen
 import sys
-from typing import IO, Optional, final, get_type_hints
+from typing import IO, Optional
 ## Third-Party
 import aiohttp
 from pydantic import BaseModel
 ## Local
 from config import Settings
+from constants.api import APIRoutes
 from constants.containers import ComponentPorts
 from constants.settings import DebugLevels
 from exceptions.error_handling import exit_on_error
-
-
-# ENUMS
-class BaseEnum(ABC):
-    """Base Enum Class"""
-    _ALLOWED_ENUM_TYPES: tuple[type, ...] = (str, int)
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        for var_name, var_value in get_type_hints(cls).items():
-            if var_name.startswith("__") or var_name.startswith("_"):
-                continue
-            if var_value not in cls._ALLOWED_ENUM_TYPES:
-                raise TypeError(f"Attribute '{var_name}' must be of type {cls._ALLOWED_ENUM_TYPES}")
-    
-    @final
-    @classmethod
-    def get_dict(cls) -> dict[str, str]:
-        base_enum_dict: dict[str, str] = {k: v for k, v in vars(cls).items() if not k.startswith("__")}
-        return base_enum_dict
-    
-    @final
-    @classmethod
-    def get_values(cls) -> tuple[str, ...]:
-        return tuple(cls.get_dict().values())
-    
-    @final
-    @classmethod
-    def get_frozen_values(cls) -> frozenset[str]:
-        return frozenset(cls.get_values())
 
 
 # LOGGING
@@ -103,7 +73,7 @@ async def get_api(api_port: str, endpoint: str, payload: BaseModel) -> str:
     print(f"Send Payload: {payload.model_dump_json()}")
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            url=f"http://127.0.0.1:{api_port}/v1/bus/{endpoint}", 
+            url=f"http://127.0.0.1:{api_port}{APIRoutes.VONE}/{endpoint}", 
             data=payload.model_dump_json(), 
             headers={'Content-Type': 'application/json'}
         ) as response:
@@ -119,7 +89,7 @@ async def post_api(api_port: str, endpoint: str, payload: BaseModel) -> str:
     print(f"Send Payload: {payload.model_dump_json()}")
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            url=f"http://127.0.0.1:{api_port}/v1/bus/{endpoint}", 
+            url=f"http://127.0.0.1:{api_port}{APIRoutes.VONE}/{endpoint}", 
             data=payload.model_dump_json(), 
             headers={'Content-Type': 'application/json'}
         ) as response:

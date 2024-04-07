@@ -6,7 +6,7 @@ Generic constants for the ace_prototype.
 ## Built-In
 from typing import Any
 ## Local
-from helpers import BaseEnum
+from .default import BaseEnum
 
 
 class ACE(BaseEnum):

@@ -1,1 +1,2 @@
-from .component import component
+import broker
+from .component import component as _queue

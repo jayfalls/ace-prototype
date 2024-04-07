@@ -7,7 +7,7 @@ Container constants for the ace_prototype.
 ## Built-in
 import os
 ## Local
-from helpers import BaseEnum
+from .default import BaseEnum
 from .components import ComponentTypes
 from .generic import ACE
 
