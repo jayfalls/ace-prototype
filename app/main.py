@@ -24,7 +24,7 @@ from typing import Callable
 ## Third Party
 import pytest
 ## Local
-from app.constants.components import ComponentTypes
+from constants.components import ComponentTypes
 from constants.settings import DebugLevels
 from constants.startup import StartupCommands
 from constants.arguments import (ArgumentNames, ARGUMENTS, ARGUMENTS_HELP,

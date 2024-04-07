@@ -5,14 +5,18 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 ## Local
 from helpers import debug_print
+from constants.api import APIRoutes
 from constants.settings import DebugLevels
 from .provider import generate_response
 
 
 # VALIDATION
-class Prompt(BaseModel):
+class ModelPrompt(BaseModel):
     stack_type: str
     system_prompt: str
+
+class ModelResponse(BaseModel):
+    response: str
 
 
 # SETUP
@@ -20,9 +24,10 @@ api = FastAPI()
 
 
 # ROUTES
-@api.get("/generate", response_class=JSONResponse)
-async def generate(prompt: Prompt) -> dict:
+@api.get(f"{APIRoutes.VONE}/generate", response_model=ModelResponse)
+async def generate(prompt: ModelPrompt) -> ModelResponse:
     print(f"Generating response for {prompt.stack_type}...")
     response: str = generate_response(stack_type=prompt.stack_type, system_prompt=prompt.system_prompt)
     debug_print(f"Response: {response}", debug_level=DebugLevels.INFO)
-    return {"response": response}
+    model_response = ModelResponse(response=response)
+    return model_response

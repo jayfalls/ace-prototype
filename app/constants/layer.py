@@ -4,9 +4,9 @@ Layer constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from helpers import BaseEnum
 from .containers import VolumePaths
 from .components import ComponentTypes
+from .default import BaseEnum
 from .generic import GenericKeys
 
 
@@ -33,6 +33,7 @@ class LayerKeys(BaseEnum):
     # State
     FIRST_RUN: str = "first_run"
     PROCESSING: str = "processing"
+    MAX_RETRIES: str = "max_retries"
     DEFAULT_GUIDANCE: str = "default_guidance"
     HAS_DATA: str = "has_data"
     DEFAULT_DATA: str = "default_data"

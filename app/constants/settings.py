@@ -4,7 +4,7 @@ Debug constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from helpers import BaseEnum
+from .default import BaseEnum
 
 
 class DebugLevels(BaseEnum):

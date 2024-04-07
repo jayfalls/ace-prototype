@@ -5,8 +5,8 @@ Argument constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from helpers import BaseEnum
-from .components import COMPONENT_TYPES
+from .components import ComponentTypes
+from .default import BaseEnum
 
 
 class ArgumentNames(BaseEnum):
@@ -79,5 +79,5 @@ ARGUMENTS_HELP: dict[str, str] = {
     ArgumentNames.STOP: "Stop the ACE cluster",
     ArgumentNames.RESTART: "Restart the ACE cluster",
     ArgumentNames.UPDATE: "Update the ACE",
-    ArgumentNames.COMPONENT_TYPE: f"Select the component type. Available types: {', '.join(COMPONENT_TYPES)}"
+    ArgumentNames.COMPONENT_TYPE: f"Select the component type. Available types: {', '.join(ComponentTypes.get_values())}"
 }

@@ -4,8 +4,9 @@ Model Provider constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from helpers import BaseEnum
 from .containers import VolumePaths
+from .default import BaseEnum
+
 
 class LLMKeys(BaseEnum):
     """Enum"""
