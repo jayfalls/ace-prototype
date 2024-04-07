@@ -4,7 +4,6 @@ import asyncio
 from threading import Thread
 from typing import Any, final, Optional, Union
 ## Third-Party
-import aiohttp
 from nats.aio.msg import Msg as NatsMsg
 from pydantic import ValidationError
 import toml
@@ -18,7 +17,7 @@ from constants.prompts import PromptFilePaths
 from constants.queue import BusKeys
 from constants.settings import DebugLevels
 from components.controller.api.bus.models import BusMessage
-from helpers import debug_print
+from helpers import debug_print, post_api
 from .injections import InjectionMap, BASE_PROMPT_MAP, ASPIRATIONAL_PROMPT_MAP, OUTPUT_RESPONSE_MAP
 from .layer_messages import LayerMessage, LayerMessageLoader, LayerSubMessage
 from .presets import LayerPreset, LAYER_PRESET_MAP
@@ -50,17 +49,8 @@ def _merge_messages(new_messages: tuple[LayerSubMessage, ...], old_messages: tup
 # COMMUNICATION
 async def _try_send(direction: str, source_queue: str, layer_message: LayerMessage) -> None:
     bus_message = BusMessage(source_queue=source_queue, layer_message=layer_message)
-    print(f"Send Payload: {bus_message.model_dump_json()}")
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            url=f"http://127.0.0.1:{ComponentPorts.CONTROLLER}/v1/bus/{direction}", 
-            data=bus_message.model_dump_json(), 
-            headers={'Content-Type': 'application/json'}
-        ) as response:
-            print("Status:", response.status)
-            print("Content-type:", response.headers['content-type'])
-            html = await response.text()
-            print("Body:", html, "...")
+    f"http://127.0.0.1:{ComponentPorts.CONTROLLER}/v1/bus/{direction}"
+    await post_api(api_port=ComponentPorts.CONTROLLER, endpoint=direction, payload=bus_message)
 
 
 # BASE LAYER

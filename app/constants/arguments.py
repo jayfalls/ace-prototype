@@ -5,10 +5,11 @@ Argument constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
+from helpers import BaseEnum
 from .components import COMPONENT_TYPES
 
 
-class ArgumentNames:
+class ArgumentNames(BaseEnum):
     """Enum"""
     DEV: str = "dev"
     TEST: str = "test"

@@ -4,12 +4,13 @@ Layer constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
+from helpers import BaseEnum
 from .containers import VolumePaths
 from .components import ComponentTypes
 from .generic import GenericKeys
 
 
-class LayerKeys:
+class LayerKeys(BaseEnum):
     """Enum"""
     NAME: str = "name"
     TYPE: str = "layer_type"
@@ -46,11 +47,11 @@ class LayerKeys:
     # Sub Message Types
     ACTIONS: str = "actions"
 
-class LayerPaths:
+class LayerPaths(BaseEnum):
     """Enum"""
     CONFIG: str = f"{VolumePaths.HOST_LAYERS}/.config"
 
-class Layers:
+class Layers(BaseEnum):
     """Enum"""
     ASPIRATIONAL: str = ComponentTypes.ASPIRATIONAL
     GLOBAL_STRATEGY: str = ComponentTypes.GLOBAL_STRATEGY
@@ -59,14 +60,14 @@ class Layers:
     COGNITIVE_CONTROL: str = ComponentTypes.COGNITIVE_CONTROL
     TASK_PROSECUTION: str = ComponentTypes.TASK_PROSECUTION
 
-class LayerCommands:
+class LayerCommands(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
     POST: str = "power_on_self_test"
 
 
 # CAPABILITIES
-class Telemetry:
+class Telemetry(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
     TIME: str = "time"
@@ -84,13 +85,13 @@ class Telemetry:
     STDOUT: str = "stdout"
     USER_INPUT: str = "user_input"
 
-class AccessTags:
+class AccessTags(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
     WARNING: str = "WARNING! This is a very expensive operation, use only when necessary..."
     OPTIONAL: str = "Don't show this feature if relevant flag is disabled..."
 
-class Access:
+class Access(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
     MEMORY: str = "memory"

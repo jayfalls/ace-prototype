@@ -4,9 +4,10 @@ Model Provider constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
+from helpers import BaseEnum
 from .containers import VolumePaths
 
-class LLMKeys:
+class LLMKeys(BaseEnum):
     """Enum"""
     MODEL_TYPE: str = "model_type"
     PROVIDER_TYPE: str = "provider_type"
@@ -23,11 +24,11 @@ class LLMKeys:
     RATE_LIMIT: str = "rate_limit"
     LOW_VRAM: str = "low_vram"
 
-class ModelProviderPaths:
+class ModelProviderPaths(BaseEnum):
     """Enum"""
     CONFIG: str = f"{VolumePaths.HOST_MODEL_PROVIDER}/.config"
 
-class LLMStackTypes:
+class LLMStackTypes(BaseEnum):
     """Enum"""
     GENERALIST: str = "generalist"
     EFFICIENT: str = "efficient"
@@ -36,10 +37,7 @@ class LLMStackTypes:
     EMBEDDER: str = "embedder"
     RERANKER: str = "reranker"
 
-_llm_stack_types_dict = {k: v for k, v in vars(LLMStackTypes).items() if not k.startswith("__")}
-LLM_STACK_TYPES: frozenset[str] = frozenset(_llm_stack_types_dict.values())
-
-class ModelTypes:
+class ModelTypes(BaseEnum):
     """Enum"""
     LLM: str = "llm"
     EMBEDDER: str = "embedder"
@@ -47,7 +45,7 @@ class ModelTypes:
 
 
 # PROVIDERS
-class Providers:
+class Providers(BaseEnum):
     """Enum"""
     CLAUDE: str = "claude"
     GROQ: str = "groq"
@@ -57,17 +55,17 @@ class Providers:
     RAGATOUILLE: str = "ragatouille"
     CROSS_ENCODER: str = "cross_encoder"
 
-class ClaudeModels:
+class ClaudeModels(BaseEnum):
     """Enum"""
     OPUS: str = "claude-3-opus-20240229"
     SONNET: str = "claude-3-sonnet-20240229"
     HAIKU: str = "claude-3-haiku-20240307"
 
-class GroqModels:
+class GroqModels(BaseEnum):
     """Enum"""
     MIXTRAL: str = "mixtral-8x7b-32768"
 
-class OllamaModels:
+class OllamaModels(BaseEnum):
     """Enum"""
     ALPHAMONARCH: str = "alphamonarch"
     PHI_TWO_ORANGE: str = "phi2-orange"
@@ -76,20 +74,20 @@ class OllamaModels:
     DEEPSEEK_CODER_SMALL: str = "deepseek-coder:1.3b-instruct-q6_K"
     GORILLA_OPENFUNCTIONS: str = "adrienbrault/gorilla-openfunctions-v2:Q3_K_L"
 
-class OpenAIModels:
+class OpenAIModels(BaseEnum):
     """Enum"""
     FOUR: str = "gpt-4"
     FOUR_TURBO: str = "gpt-4-turbo-preview"
     THREE_POINT_FIVE: str = "gpt-3.5-turbo"
 
-class RagatouilleModels:
+class RagatouilleModels(BaseEnum):
     """Enum"""
     MXBAI_COLBERT: str = "mixedbread-ai/mxbai-colbert-large-v1"
 
-class FastEmbedModels:
+class FastEmbedModels(BaseEnum):
     """Enum"""
     MXBAI_EMBED: str = "mixedbread-ai/mxbai-embed-large-v1"
 
-class CrossEncoderModels:
+class CrossEncoderModels(BaseEnum):
     """Enum"""
     MXBAI_RERANKER: str = "mixedbread-ai/mxbai-rerank-large-v1"

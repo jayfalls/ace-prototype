@@ -5,14 +5,16 @@ Generic constants for the ace_prototype.
 # DEPENDENCIES
 ## Built-In
 from typing import Any
+## Local
+from helpers import BaseEnum
 
 
-class ACE:
+class ACE(BaseEnum):
     """Enum"""
     NAME: str = "ACE"
     LOWER_NAME: str = "ace"
 
-class Paths:
+class Paths(BaseEnum):
     COMPONENTS: str = "./components"
     ACTIONS: str = f"{COMPONENTS}/actions"
     CONTROLLER: str = f"{COMPONENTS}/controller"
@@ -22,7 +24,7 @@ class Paths:
     MODEL_PROVIDER: str = f"{COMPONENTS}/model_provider"
     QUEUE: str = f"{COMPONENTS}/queue"
     
-class GenericKeys:
+class GenericKeys(BaseEnum):
     """Enum"""
     NONE: str = "none"
     EMPTY: str = ""

@@ -2,8 +2,12 @@
 Debug constants for the ace_prototype.
 """
 
+# DEPENDENCIES
+## Local
+from helpers import BaseEnum
 
-class DebugLevels:
+
+class DebugLevels(BaseEnum):
     """Enum"""
     ERROR: int = 0
     WARNING: int = 1

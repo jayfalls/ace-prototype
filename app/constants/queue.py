@@ -5,10 +5,11 @@ Queue constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
+from helpers import BaseEnum
 from .components import ComponentTypes as Queues
 
 
-class QueueCommands:
+class QueueCommands(BaseEnum):
     """Enum"""
     START: str = "nats-server -js"
 
@@ -25,7 +26,7 @@ QUEUES: frozenset[str] = frozenset(
 
 
 # BUSSES
-class BusKeys:
+class BusKeys(BaseEnum):
     """Enum"""
     UP: str = "northbound"
     DOWN: str = "southbound"

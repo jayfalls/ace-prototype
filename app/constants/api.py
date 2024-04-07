@@ -7,12 +7,13 @@ API constants for the ace_prototype.
 ## Third-Party
 from fastapi.templating import Jinja2Templates
 ## Local
+from helpers import BaseEnum
 from .containers import VolumePaths
 from .components import ComponentTypes
 from .generic import Paths
 
 
-class APIRoutes:
+class APIRoutes(BaseEnum):
     """Enum"""
     VONE: str = "/v1"
 
@@ -26,7 +27,7 @@ APIS: frozenset[str] = frozenset(
     }
 )
 
-class APIPaths:
+class APIPaths(BaseEnum):
     """Enum"""
     STORAGE: str = f"{VolumePaths.STORAGE}/controller"
     SETTINGS: str = f"{STORAGE}/settings"
