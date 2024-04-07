@@ -24,9 +24,9 @@ from typing import Callable
 ## Third Party
 import pytest
 ## Local
+from app.constants.components import ComponentTypes
 from constants.settings import DebugLevels
 from constants.startup import StartupCommands
-from constants.components import COMPONENT_TYPES
 from constants.arguments import (ArgumentNames, ARGUMENTS, ARGUMENTS_HELP,
     BOOL_ARGUMENTS, STRING_ARGUMENTS, ARGUMENTS_SHORT
 )
@@ -89,8 +89,8 @@ def _parse_arguments(arg_parser: ArgumentParser) -> ACEArguments:
     ace_arguments.should_update = arguments.get(ArgumentNames.UPDATE, False)
     ace_arguments.should_restart = arguments.get(ArgumentNames.RESTART, False)
     debug_print(f"Arguments: {ace_arguments.__dict__}", DebugLevels.DEBUG)
-    if ace_arguments.component not in COMPONENT_TYPES and ace_arguments.component != ArgumentNames.STARTUP:
-        exit_on_error(f"Invalid component type: {ace_arguments.component}!\nPlease use one of the following: {COMPONENT_TYPES}")
+    if ace_arguments.component not in ComponentTypes.get_frozen_values() and ace_arguments.component != ArgumentNames.STARTUP:
+        exit_on_error(f"Invalid component type: {ace_arguments.component}!\nPlease use one of the following: {ComponentTypes.get_values()}")
     return ace_arguments
 
 def assign_arguments() -> ACEArguments:

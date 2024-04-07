@@ -7,6 +7,7 @@ Container constants for the ace_prototype.
 ## Built-in
 import os
 ## Local
+from helpers import BaseEnum
 from .components import ComponentTypes
 from .generic import ACE
 
@@ -19,7 +20,7 @@ _ORCHESTRATOR: str = "podman"
 ACE_IMAGE_NAME: str = "ace_prototype"
 _FULL_ACE_IMAGE_NAME: str = f"localhost/{ACE_IMAGE_NAME}:latest"
 
-class ImageCommands:
+class ImageCommands(BaseEnum):
     """Enum"""
     CHECK_IMAGES: str = f"{_ORCHESTRATOR} images"
     BUILD_IMAGE: str = f"{_ORCHESTRATOR} build -t {ACE_IMAGE_NAME}  -f {_SETUP_FOLDER}/Containerfile ."
@@ -28,7 +29,7 @@ class ImageCommands:
 # VOLUMES
 _VOLUME: str = "volume"
 
-class VolumePaths:
+class VolumePaths(BaseEnum):
     """Enum"""
     STORAGE: str = "storage"
     HOST: str = f"{os.getcwd()}/{STORAGE}"
@@ -42,7 +43,7 @@ class VolumePaths:
     MODEL_PROVIDER: str = f"{CONTAINER}/model_provider"
     OUTPUT: str = f"{CONTAINER}/output"
 
-class DevVolumePaths:
+class DevVolumePaths(BaseEnum):
     """Enum"""
     STORAGE: str = "./.storage"
     CONTROLLER: str = f"{STORAGE}/controller"
@@ -68,26 +69,26 @@ REQUIRED_DEV_STORAGE_PATHS: tuple[str, ...] = (
 # NETWORK
 ACE_NETWORK_NAME: str = f"{ACE.LOWER_NAME}_network"
 
-class NetworkCommands:
+class NetworkCommands(BaseEnum):
     """Enum"""
     CHECK_NETWORK: str = f"{_ORCHESTRATOR} network ls"
     CREATE_NETWORK: str = f"{_ORCHESTRATOR} network create {ACE_NETWORK_NAME}"
 
 
 # DEPLOYMENT
-class DeploymentFile:
+class DeploymentFile(BaseEnum):
     """Enum"""
     PATH: str = f"{_SETUP_FOLDER}/deployment.yaml"
     USER_PATH: str = f"{_SETUP_FOLDER}/.user_deployment.yaml"
 
-class DeploymentCommands:
+class DeploymentCommands(BaseEnum):
     """Enum"""
     CHECK: str = f"{_ORCHESTRATOR} pod ps"
     _DEPLOY_COMMAND: str = f"{_ORCHESTRATOR} kube play"
     DEPLOY: str = f"{_DEPLOY_COMMAND} --network {ACE_NETWORK_NAME} --replace {DeploymentFile.USER_PATH}"
     STOP: str = f"{_DEPLOY_COMMAND} --network {ACE_NETWORK_NAME} --down {DeploymentFile.USER_PATH}"
 
-class ComponentPorts:
+class ComponentPorts(BaseEnum):
     """Enum"""
     CONTROLLER: str = "2349"
     QUEUE: str = "4222"
@@ -101,7 +102,6 @@ class ComponentPorts:
     EXECUTIVE_FUNCTION: str = "4584"
     COGNITIVE_CONTROL: str = "4585"
     TASK_PROSECUTION: str = "4586"
-
 
 DEPLOYMENT_REPLACE_KEYWORDS: dict[str, str] = {
     "{{ ace_pod_name }}": ACE.LOWER_NAME,

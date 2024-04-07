@@ -3,7 +3,7 @@
 from copy import deepcopy
 from re import L
 ## Local
-from constants.model_provider import LLMKeys, LLMStackTypes, LLM_STACK_TYPES, ModelTypes, Providers
+from constants.model_provider import LLMKeys, LLMStackTypes, ModelTypes, Providers
 from .llms import (
     LLM, LLMDetails, OllamaDetails,
     ClaudeLLM, GroqLLM, OllamaLLM, OpenAILLM
@@ -94,7 +94,7 @@ class LLMStack:
         llm_map: dict[str, LLM] = {}
         embedder_map: dict[str, Embedder] = {}
         reranker_map: dict[str, Reranker] = {}
-        for stack_type in LLM_STACK_TYPES:
+        for stack_type in LLMStackTypes.get_frozen_values():
             provider_details: dict[str, str] = provider_map[stack_type]
             model_type: str = provider_details.pop(LLMKeys.MODEL_TYPE)
             provider_type: str = provider_details.pop(LLMKeys.PROVIDER_TYPE)

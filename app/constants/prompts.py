@@ -5,10 +5,11 @@ Prompt constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Local
-from constants.generic import Paths
+from helpers import BaseEnum
+from .generic import Paths
 
 
-class PromptKeys:
+class PromptKeys(BaseEnum):
     TYPE: str = "prompt_type"
     PROMPT: str = "prompt"
     CONTEXT: str = "context"
@@ -20,12 +21,12 @@ class PromptKeys:
     RESPONSE_FORMAT: str = "response_format"
     SCHEMA: str = "schema"
 
-class PromptTypes:
+class PromptTypes(BaseEnum):
     """Enum"""
     REFINE: str = "refine"
     OUTPUT: str = "output"
 
-class PromptFilePaths:
+class PromptFilePaths(BaseEnum):
     """Enum"""
     _SYSTEM_PROMPTS: str = f"{Paths.LAYER}/system_prompts"
     LAYER: str = f"{_SYSTEM_PROMPTS}/layer"

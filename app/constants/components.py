@@ -2,7 +2,11 @@
 Component constants for the ace_prototype.
 """
 
-class ComponentTypes:
+# DEPENDENCIES
+## Local
+from helpers import BaseEnum
+
+class ComponentTypes(BaseEnum):
     """Enum"""
     CONTROLLER: str = "controller"
     QUEUE: str = "queue"
@@ -16,18 +20,3 @@ class ComponentTypes:
     EXECUTIVE_FUNCTION: str = "executive_function"
     COGNITIVE_CONTROL: str = "cognitive_control"
     TASK_PROSECUTION: str = "task_prosecution"
-
-COMPONENT_TYPES: tuple = (
-    ComponentTypes.CONTROLLER,
-    ComponentTypes.QUEUE,
-    ComponentTypes.TELEMETRY,
-    ComponentTypes.ACTIONS,
-    ComponentTypes.MEMORY,
-    ComponentTypes.MODEL_PROVIDER,
-    ComponentTypes.ASPIRATIONAL,
-    ComponentTypes.GLOBAL_STRATEGY,
-    ComponentTypes.AGENT_MODEL,
-    ComponentTypes.EXECUTIVE_FUNCTION,
-    ComponentTypes.COGNITIVE_CONTROL,
-    ComponentTypes.TASK_PROSECUTION
-)
