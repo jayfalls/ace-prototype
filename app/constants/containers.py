@@ -95,7 +95,6 @@ class ComponentPorts(BaseEnum):
     MODEL_PROVIDER: str = "4223"
     TELEMETRY: str = "4931"
     ACTIONS: str = "4932"
-    MEMORY: str = "4933"
     ASPIRATIONAL: str = "4581"
     GLOBAL_STRATEGY: str = "4582"
     AGENT_MODEL: str = "4583"
@@ -117,8 +116,6 @@ DEPLOYMENT_REPLACE_KEYWORDS: dict[str, str] = {
     "{{ telemetry_port }}": ComponentPorts.TELEMETRY,
     "{{ actions_name }}": ComponentTypes.ACTIONS,
     "{{ actions_port }}": ComponentPorts.ACTIONS,
-    "{{ memory_name }}": ComponentTypes.MEMORY,
-    "{{ memory_port }}": ComponentPorts.MEMORY,
     "{{ aspirational_name }}": ComponentTypes.ASPIRATIONAL,
     "{{ aspirational_port }}": ComponentPorts.ASPIRATIONAL,
     "{{ global_strategy_name }}": ComponentTypes.GLOBAL_STRATEGY,

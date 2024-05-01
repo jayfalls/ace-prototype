@@ -68,34 +68,15 @@ class LayerCommands(BaseEnum):
 
 
 # CAPABILITIES
-class Telemetry(BaseEnum):
-    """Enum"""
-    NONE: str = GenericKeys.NONE
-    TIME: str = "time"
-    LOCATION: str = "location"
-    EMBODIMENT: str = "embodiment"
-    WORLD_OVERVIEW: str = "world_overview"
-    HARDWARE_STATS: str = "hardware_statistics"
-    SYSTEM_METRICS: str = "system_metrics"
-    SOFTWARE_STATS: str = "software_statistics"
-    SYSTEM_PROCESSES: str = "system_processes"
-    RESOURCES: str = "resources"
-    MEMORY: str = "memory"
-    VISUAL: str = "visual"
-    AUDIO: str = "audio"
-    STDOUT: str = "stdout"
-    USER_INPUT: str = "user_input"
-
-class AccessTags(BaseEnum):
+class ActionTags(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
     WARNING: str = "WARNING! This is a very expensive operation, use only when necessary..."
     OPTIONAL: str = "Don't show this feature if relevant flag is disabled..."
 
-class Access(BaseEnum):
+class Actions(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
-    MEMORY: str = "memory"
     MATH: str = "math"
     WORKFLOWS: str = "workflows"
     FILE: str = "files"

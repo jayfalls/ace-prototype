@@ -4,7 +4,7 @@ Layer constants for the ace_prototype.
 
 # DEPENDENCIES
 ## Built-In
-from typing import Any, Optional, Union
+from typing import Any, Optional
 ## Third-Party
 from pydantic import BaseModel, validator
 ## Local
@@ -49,7 +49,7 @@ class LayerMessage(BaseModel):
     @validator("messages", pre=True)
     def _convert_dict_messages_to_tuple_of_sub_messages(
         cls, 
-        messages: Union[list[dict[str, Union[str, list[str]]]], tuple[LayerSubMessage, ...]]
+        messages: list[dict[str, str | list[str]]] | tuple[LayerSubMessage, ...]
     ) -> tuple[LayerSubMessage, ...]:
         if isinstance(messages, tuple):
             for message in messages:

@@ -12,7 +12,6 @@ class ComponentTypes(BaseEnum):
     QUEUE: str = "queue"
     TELEMETRY: str = "telemetry"
     ACTIONS: str = "actions"
-    MEMORY: str = "memory"
     MODEL_PROVIDER: str = "model_provider"
     ASPIRATIONAL: str = "aspirational"
     GLOBAL_STRATEGY: str = "global_strategy"
