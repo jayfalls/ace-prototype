@@ -27,5 +27,5 @@
 # Documentation
 
 ## Development
-- [Standards](./documentation/standards.md)
+
 - [Design Documents](./documentation/design_doc.md)

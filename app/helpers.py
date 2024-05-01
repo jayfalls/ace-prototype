@@ -6,6 +6,7 @@ import sys
 from typing import IO, Optional
 ## Third-Party
 import aiohttp
+import httpx
 from pydantic import BaseModel
 ## Local
 from config import Settings
@@ -98,3 +99,11 @@ async def post_api(api_port: str, endpoint: str, payload: BaseModel) -> str:
             html: str = await response.text()
             print("Body:", html, "...")
             return html
+
+def check_internet_access() -> bool:
+    try:
+        response = httpx.get("https://www.google.com/")
+        response.raise_for_status()
+        return True
+    except httpx.RequestError:
+        return False

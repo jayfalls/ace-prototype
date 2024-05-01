@@ -2,7 +2,6 @@
 ## Third-Party
 from fastapi import FastAPI
 from pydantic import BaseModel
-from starlette.responses import JSONResponse
 ## Local
 from helpers import debug_print
 from constants.api import APIRoutes
