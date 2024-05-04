@@ -1,18 +1,36 @@
 # DEPENDENCIES
 ## Built-In
+import asyncio
+from concurrent import futures
 from datetime import datetime
-from functools import cache
-from typing import Callable
+from time import time
+from typing import Callable, Optional
 ## Third-Party
 import httpx
 ## Local
-from constants.telemetry import TelemetryTypes
-from helpers import check_internet_access
+from components.model_provider.api import ModelPrompt, ModelResponse
+from constants.containers import ComponentPorts
+from constants.model_provider import LLMStackTypes
+from constants.telemetry import TelemetryKeys, TelemetrySystemPrompts, TelemetryTypes
+from helpers import check_internet_access, KeyValueCacheStore, get_api
 
 
 # CONSTANTS
 DEFAULT_CACHE_COUNT: int = 256
 NEWS_API_KEY: str = "pub_42899f1e388aa15a48c2f2a4a74bf5b1af43b"
+
+
+# GLOBAL
+key_value_cache = KeyValueCacheStore()
+
+
+# LLM
+async def _model_response(system_prompt: str) -> ModelResponse:
+    model_request = ModelPrompt(stack_type=LLMStackTypes.EFFICIENT, system_prompt=system_prompt)
+    response: str = await get_api(api_port=ComponentPorts.MODEL_PROVIDER, endpoint="generate", payload=model_request)
+    response_validated = ModelResponse.model_validate_json(response)
+    return response_validated
+
 
 class TelemetryTypesRef():
     """Enum"""
@@ -52,11 +70,49 @@ def _get_location() -> str:
 def _get_embodiment() -> str:
     return "embodiment"
 
-def _get_world_overview() -> str:
-    return "world overview"
+def _get_news() -> frozenset[str]:
+    news_api: str = f"https://newsdata.io/api/1/news?apikey={NEWS_API_KEY}&language=en&prioritydomain=top"
+    try:
+        response = httpx.get(news_api)
+        response.raise_for_status()
+        data: dict = response.json()
+        if data["status"] != "success":
+            raise Exception("News API returned an error")
+        
+        descriptions: list[str] = [
+            f"{article.get('title', 'No Title')} - {article.get('description', 'No Description')}" 
+            for article in data.get("results", [])
+            if article.get("description")
+        ]
+        return frozenset(descriptions)
+    except httpx.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+    return frozenset({"Unable to retrieve world state"})
 
-@cache
+def _get_world_overview() -> str:
+    cached_world_overview: Optional[str] = key_value_cache.get(TelemetryKeys.WORLD_OVERVIEW_CACHE)
+    if cached_world_overview:
+        return str(key_value_cache.get(TelemetryKeys.WORLD_OVERVIEW_CACHE))
+    
+    descriptions: frozenset[str] = _get_news()
+    all_articles: str = "\n".join(descriptions)
+
+    system_prompt: str = ""
+    with open(TelemetrySystemPrompts.WORLD_OVERVIEW, "r", encoding="utf-8") as file:
+        system_prompt = file.read().replace("{{ news_articles }}", all_articles)
+    with futures.ThreadPoolExecutor() as executor:
+        event_loop = asyncio.new_event_loop()
+        future = executor.submit(lambda: event_loop.run_until_complete(_model_response(system_prompt)))
+        response: ModelResponse = future.result()
+    world_overview: str = response.response
+    six_hours_in_seconds: int = 60 * 60 * 6
+    key_value_cache.set(key=TelemetryKeys.WORLD_OVERVIEW_CACHE, value=world_overview, ttl_seconds=six_hours_in_seconds)
+    return world_overview
+
 def _get_hardware_statistics() -> str:
+    print("Cached")
     return "hardware statistics"
 
 def _get_system_metrics() -> str:
@@ -107,11 +163,11 @@ ACCESS_CONTEXTUAL_STRATEGY_MAP: dict[str, Callable[[str], str]] = {
     TelemetryTypes.MEMORY: _get_memory,
 }
 
-def collect_telemetry(access: frozenset[str], context: str) -> frozenset[str]:
-    telemetry: list[str] = []
+def collect_telemetry(access: frozenset[str], context: str) -> dict[str, str]:
+    telemetry: dict[str, str] = {}
     for telemetry_type in access:
         if telemetry_type in ACCESS_CONTEXTLESS_STRATEGY_MAP:
-            telemetry.append(ACCESS_CONTEXTLESS_STRATEGY_MAP[telemetry_type]())
+            telemetry[telemetry_type] = ACCESS_CONTEXTLESS_STRATEGY_MAP[telemetry_type]()
         elif telemetry_type in ACCESS_CONTEXTUAL_STRATEGY_MAP:
-            telemetry.append(ACCESS_CONTEXTUAL_STRATEGY_MAP[telemetry_type](context))
-    return frozenset(telemetry)
+            telemetry[telemetry_type] = ACCESS_CONTEXTUAL_STRATEGY_MAP[telemetry_type](context)
+    return telemetry

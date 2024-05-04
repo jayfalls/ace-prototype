@@ -21,11 +21,6 @@ from constants.settings import DebugLevels
 from helpers import debug_print
 
 
-# CONSTANTS
-_ASSISTANT_BEGIN: str = '```toml\n[internal]\nreasoning = """'
-"""Must match the start of the response schemas"""
-
-
 # GENERIC
 class LLMDetails(BaseModel):
     """Data"""
@@ -50,7 +45,7 @@ class LLM(ABC, Generic[GenericLLMDetails]):
         rate_limit (int): Minimum time between requests in seconds
     
     Methods:
-        generate (system_prompt: str) -> str: Generate a response to the system prompt
+        generate (system_prompt: str, assistant_begin: str) -> str: Generate a response to the system prompt
     """
     __slots__: tuple[str, ...] = (
         LLMKeys.API_KEY,
@@ -71,7 +66,7 @@ class LLM(ABC, Generic[GenericLLMDetails]):
         pass
 
     @abstractmethod
-    def generate(self, system_prompt: str) -> str:
+    def generate(self, system_prompt: str, assistant_begin: str) -> str:
         raise NotImplementedError
 
 
@@ -80,14 +75,14 @@ class ClaudeLLM(LLM):
     """
     Language Model Manager for Claude
     """
-    def generate(self, system_prompt: str) -> str:
+    def generate(self, system_prompt: str, assistant_begin: str) -> str:
         client = Anthropic(api_key=self.api_key)
         stream: AnthropicStream[MessageStreamEvent] = client.messages.create(
             system=system_prompt,
             messages=[
                 {
                     "role": "assistant",
-                    "content": _ASSISTANT_BEGIN
+                    "content": assistant_begin
                 }
             ],
             model=self.model,
@@ -95,7 +90,7 @@ class ClaudeLLM(LLM):
             temperature=self.temperature,
             stream=True,
         )
-        output: list[str] = [_ASSISTANT_BEGIN]
+        output: list[str] = [assistant_begin]
         for event in stream:
             output.append(event.type)
         return "".join(output)
@@ -106,7 +101,7 @@ class GroqLLM(LLM):
     """
     Language Model Manager for Groq
     """
-    def generate(self, system_prompt: str) -> str:
+    def generate(self, system_prompt: str, assistant_begin: str) -> str:
         client = Groq(api_key=self.api_key)
         chat_completion: GroqChatCompletion = client.chat.completions.create(
             messages=[
@@ -142,7 +137,7 @@ class OllamaLLM(LLM):
         )
         self.low_vram: bool = llm_details.low_vram
 
-    def generate(self, system_prompt: str) -> str:
+    def generate(self, system_prompt: str, assistant_begin: str) -> str:
         stream: Union[Mapping[str, Any], Iterator[Mapping[str, Any]]] = ollama.chat(
             model=self.model,
             messages=[
@@ -152,7 +147,7 @@ class OllamaLLM(LLM):
                 },
                 {
                     "role": "assistant",
-                    "content": _ASSISTANT_BEGIN
+                    "content": assistant_begin
                 }
             ],
             options=OllamaOptions(
@@ -162,7 +157,7 @@ class OllamaLLM(LLM):
             ),
             stream=True,
         )
-        output: list[str] = [_ASSISTANT_BEGIN]
+        output: list[str] = [assistant_begin]
         if isinstance(stream, Iterator):
             for chunk in stream:
                 output.append(chunk["message"]["content"])
@@ -180,7 +175,7 @@ class OpenAILLM(LLM):
     """
     Language Model Manager for OpenAI
     """
-    def generate(self, system_prompt: str) -> str:
+    def generate(self, system_prompt: str, assistant_begin: str) -> str:
         client = OpenAI(api_key=self.api_key)
         stream: OpenAIStream[OpenAIChatCompletionChunk] = client.chat.completions.create(
             model=self.model,
@@ -191,14 +186,14 @@ class OpenAILLM(LLM):
                 },
                 {
                     "role": "assistant",
-                    "content": _ASSISTANT_BEGIN
+                    "content": assistant_begin
                 }
             ],
             max_tokens=self.context,
             temperature=self.temperature,
             stream=True,
         )
-        output: list[str] = [_ASSISTANT_BEGIN]
+        output: list[str] = [assistant_begin]
         for chunk in stream:
             output.append(chunk.choices[0].delta.content or "")
         return "".join(output)

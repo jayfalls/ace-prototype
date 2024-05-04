@@ -13,6 +13,7 @@ from .provider import generate_response
 class ModelPrompt(BaseModel):
     stack_type: str
     system_prompt: str
+    assistant_begin: str = " "
 
 class ModelResponse(BaseModel):
     response: str
@@ -26,7 +27,7 @@ api = FastAPI()
 @api.get(f"{APIRoutes.VONE}/generate", response_model=ModelResponse)
 async def generate(prompt: ModelPrompt) -> ModelResponse:
     print(f"Generating response for {prompt.stack_type}...")
-    response: str = generate_response(stack_type=prompt.stack_type, system_prompt=prompt.system_prompt)
+    response: str = generate_response(stack_type=prompt.stack_type, system_prompt=prompt.system_prompt, assistant_begin=prompt.assistant_begin)
     debug_print(f"Response: {response}", debug_level=DebugLevels.INFO)
     model_response = ModelResponse(response=response)
     return model_response

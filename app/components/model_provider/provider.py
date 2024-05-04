@@ -192,5 +192,5 @@ def startup() -> None:
 
 
 # MAIN
-def generate_response(stack_type: str, system_prompt: str) -> str:
-    return getattr(llm_stack, stack_type).generate(system_prompt)
+def generate_response(stack_type: str, system_prompt: str, assistant_begin: str) -> str:
+    return getattr(llm_stack, stack_type).generate(system_prompt=system_prompt, assistant_begin=assistant_begin)

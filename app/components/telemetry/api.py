@@ -15,7 +15,7 @@ class TelemetryRequest(BaseModel):
     context: str
 
 class TelemetryResponse(BaseModel):
-    telemetry: frozenset[str]
+    telemetry: dict[str, str]
 
 class UserInputRequest(BaseModel):
     user_input: str
@@ -33,7 +33,7 @@ api = FastAPI()
 @api.get(f"{APIRoutes.VONE}/telemetry", response_model=TelemetryResponse)
 async def get_telemetry(request: TelemetryRequest) -> TelemetryResponse:
     print("Generating telemetry...")
-    telemetry: frozenset[str] = collect_telemetry(access=request.access, context=request.context)
+    telemetry: dict[str, str] = collect_telemetry(access=request.access, context=request.context)
     debug_print(f"Telemetry: {telemetry}", debug_level=DebugLevels.INFO)
     model_response = TelemetryResponse(telemetry=telemetry)
     return model_response

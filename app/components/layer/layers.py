@@ -37,6 +37,11 @@ from .presets import LayerPreset, LAYER_PRESET_MAP
 from .prompt_builder import build_prompt, VariableMap
 
 
+# CONSTANTS
+_ASSISTANT_BEGIN: str = '```toml\n[internal]\nreasoning = """'
+"""Must match the start of the response schemas"""
+
+
 # PARSING
 def _merge_messages(new_messages: tuple[LayerSubMessage, ...], old_messages: tuple[LayerSubMessage, ...]) -> tuple[LayerSubMessage, ...]:
     debug_print("Merging Messages...", DebugLevels.INFO)
@@ -69,7 +74,7 @@ async def _try_send(direction: str, source_queue: str, layer_message: LayerMessa
     return response_validated
 
 async def _model_response(system_prompt: str) -> ModelResponse:
-    model_request = ModelPrompt(stack_type=LLMStackTypes.GENERALIST, system_prompt=system_prompt)
+    model_request = ModelPrompt(stack_type=LLMStackTypes.GENERALIST, system_prompt=system_prompt, assistant_begin=_ASSISTANT_BEGIN)
     response: str = await get_api(api_port=ComponentPorts.MODEL_PROVIDER, endpoint="generate", payload=model_request)
     response_validated = ModelResponse.model_validate_json(response)
     return response_validated

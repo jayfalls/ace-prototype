@@ -22,7 +22,6 @@ APIS: frozenset[str] = frozenset(
         ComponentTypes.CONTROLLER,
         ComponentTypes.TELEMETRY,
         ComponentTypes.ACTIONS,
-        ComponentTypes.MEMORY,
         ComponentTypes.MODEL_PROVIDER
     }
 )
