@@ -2,7 +2,8 @@
 ## Built-In
 from abc import ABC
 ## Local
-from constants.layer import Layers, Telemetry, Access
+from constants.layer import Layers
+from constants.telemetry import TelemetryTypes
 
 
 # PRESETS
@@ -18,7 +19,7 @@ class Aspirational(LayerPreset):
     """
     TELEMETRY: frozenset[str] = frozenset(
         {
-            Telemetry.NONE
+            TelemetryTypes.NONE
         }
     )
 
@@ -31,13 +32,13 @@ class GlobalStrategy(LayerPreset):
     """
     TELEMETRY: frozenset[str] = frozenset(
         {
-            Telemetry.TIME,
-            Telemetry.LOCATION,
-            Telemetry.WORLD_OVERVIEW,
-            Telemetry.VISUAL,
-            Telemetry.AUDIO,
-            Telemetry.STDOUT,
-            Telemetry.USER_INPUT
+            TelemetryTypes.TIME,
+            TelemetryTypes.LOCATION,
+            TelemetryTypes.WORLD_OVERVIEW,
+            TelemetryTypes.VISUAL,
+            TelemetryTypes.AUDIO,
+            TelemetryTypes.STDOUT,
+            TelemetryTypes.USER_INPUT
         }
     )
 
@@ -49,12 +50,12 @@ class AgentModel(LayerPreset):
     """
     TELEMETRY: frozenset[str] = frozenset(
         {
-            Telemetry.MEMORY,
-            Telemetry.EMBODIMENT,
-            Telemetry.HARDWARE_STATS,
-            Telemetry.SYSTEM_METRICS,
-            Telemetry.SOFTWARE_STATS,
-            Telemetry.SYSTEM_PROCESSES
+            TelemetryTypes.MEMORY,
+            TelemetryTypes.EMBODIMENT,
+            TelemetryTypes.HARDWARE_STATS,
+            TelemetryTypes.SYSTEM_METRICS,
+            TelemetryTypes.SOFTWARE_STATS,
+            TelemetryTypes.SYSTEM_PROCESSES
         }
     )
 
@@ -65,7 +66,7 @@ class ExecutiveFunction(LayerPreset):
     """
     TELEMETRY: frozenset[str] = frozenset(
         {
-            Telemetry.NONE
+            TelemetryTypes.NONE
         }
     )
 
@@ -77,13 +78,13 @@ The Cognitive Control Layer is responsible for dynamic task switching and select
     """
     TELEMETRY: frozenset[str] = frozenset(
         {
-            Telemetry.SYSTEM_METRICS,
-            Telemetry.SYSTEM_PROCESSES,
-            Telemetry.LOCATION,
-            Telemetry.VISUAL,
-            Telemetry.AUDIO,
-            Telemetry.STDOUT,
-            Telemetry.USER_INPUT
+            TelemetryTypes.SYSTEM_METRICS,
+            TelemetryTypes.SYSTEM_PROCESSES,
+            TelemetryTypes.LOCATION,
+            TelemetryTypes.VISUAL,
+            TelemetryTypes.AUDIO,
+            TelemetryTypes.STDOUT,
+            TelemetryTypes.USER_INPUT
         }
     )
 
@@ -94,14 +95,14 @@ class TaskProsecution(LayerPreset):
     """
     TELEMETRY: frozenset[str] = frozenset(
         {
-            Telemetry.EMBODIMENT,
-            Telemetry.LOCATION,
-            Telemetry.SYSTEM_METRICS,
-            Telemetry.SYSTEM_PROCESSES,
-            Telemetry.VISUAL,
-            Telemetry.AUDIO,
-            Telemetry.STDOUT,
-            Telemetry.USER_INPUT
+            TelemetryTypes.EMBODIMENT,
+            TelemetryTypes.LOCATION,
+            TelemetryTypes.SYSTEM_METRICS,
+            TelemetryTypes.SYSTEM_PROCESSES,
+            TelemetryTypes.VISUAL,
+            TelemetryTypes.AUDIO,
+            TelemetryTypes.STDOUT,
+            TelemetryTypes.USER_INPUT
         }
     )
 

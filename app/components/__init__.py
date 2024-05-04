@@ -14,7 +14,6 @@ from .controller import component as _controller
 from .queue.component import component as _queue
 from .telemetry import _telemetry
 from .actions import _actions
-from .memory import _memory
 from .model_provider import _model_provider
 from .layer import _layer
 
@@ -23,7 +22,6 @@ COMPONENT_MAP: dict[str, Callable[[str], None]] = {
     ComponentTypes.QUEUE: _queue,
     ComponentTypes.TELEMETRY: _telemetry,
     ComponentTypes.ACTIONS: _actions,
-    ComponentTypes.MEMORY: _memory,
     ComponentTypes.MODEL_PROVIDER: _model_provider,
     ComponentTypes.ASPIRATIONAL: _layer,
     ComponentTypes.GLOBAL_STRATEGY: _layer,

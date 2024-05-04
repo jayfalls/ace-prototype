@@ -8,6 +8,18 @@ from .default import BaseEnum
 from .generic import GenericKeys
 
 
+class TelemetryKeys(BaseEnum):
+    """Enum"""
+    WORLD_OVERVIEW_CACHE: str = "world_overview_cache"
+
+class TelemetryPaths(BaseEnum):
+    """Enum"""
+    SYSTEM_PROMPTS: str = "components/telemetry/system_prompts"
+
+class TelemetrySystemPrompts(BaseEnum):
+    """Enum"""
+    WORLD_OVERVIEW: str = f"{TelemetryPaths.SYSTEM_PROMPTS}/world_overview"
+
 class TelemetryTypes(BaseEnum):
     """Enum"""
     NONE: str = GenericKeys.NONE
